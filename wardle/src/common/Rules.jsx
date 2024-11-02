@@ -1,10 +1,12 @@
-export default function Bienvenida() {
+export default function Rules() {
     return (
         <div>
           <header>
             <h1>Bienvenido a WARdl</h1>
             <p>El juego estratégico inspirado en Wordle</p>
           </header>
+
+          <a href="/">Volver al Inicio</a>
     
           <section className="reglas">
             <h2>Reglas del juego</h2>

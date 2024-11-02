@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function Usuario() {
+export default function UserCreate() {
     const [nombre, setNombre] = useState(null);
 
     function handleChange(nombre) {
@@ -9,6 +9,7 @@ export default function Usuario() {
 
     return (
         <>
+        <a href="/">Volver al Inicio</a>
         <input
             onChange={e => handleChange(e.target.value)}
         />
