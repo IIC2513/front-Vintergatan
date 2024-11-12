@@ -21,9 +21,8 @@ export default function MainPage() {
       </div>
       <div className="Instructions">
         <a href="/rules">REGLAS DEL JUEGO</a>
-        <a href="/about">CÓMO JUGAR</a> {/* todavía no existe la ruta */}
-        <a href="/visita">JUGAR COMO VISITA</a>{" "}
-        {/* todavía no existe la ruta */}
+        <a href="/about">CÓMO JUGAR</a>                    
+        <a href="/visita">JUGAR COMO VISITA</a>{" "}        {/* todavía no existe la ruta */}
       </div>
     </>
   );

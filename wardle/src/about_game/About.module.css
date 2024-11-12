@@ -1,0 +1,50 @@
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+
+.header {
+    text-align: left; /* Centra el texto */
+    color: black;
+    margin: 30px; /* Elimina márgenes */
+    position: fixed; /* Fija el encabezado en la parte superior */
+    top: 0;
+    font-size: 3em;
+    font-weight: bold;
+}
+
+h1 {
+    text-align: center;
+    margin-top: 10px; /* Añade un margen superior para evitar que el contenido se superponga con el encabezado */
+}
+
+h2 {
+    text-align: center;
+    margin-left: 280px;
+    margin-right: 280px;
+}
+
+.backButton {
+    background-color: #e9e9e9;
+    color: #333;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 50px;
+    font-size: 1.5em;
+    cursor: pointer;
+    margin-left: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none; /* Evita que el texto sea subrayado */
+}
+
+.backButton:focus {
+    outline: none; /* Elimina el contorno cuando el botón está enfocado */
+}
+
+.backButton:hover {
+    text-decoration: none; /* Asegura que el texto no sea subrayado al hacer hover */
+}
