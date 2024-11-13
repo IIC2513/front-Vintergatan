@@ -1,18 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Quintessential&display=swap');
 
-
 body {
     background-color: #fffdf1; /* Fondo claro */
     font-family: "Quintessential", serif;
-    font-style: normal;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+
+.centered-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    margin: 0;
-    padding: 0;
-    color: #333;
 }
 
 h1 {
@@ -95,10 +97,13 @@ a:hover {
 /* Estilo para las instrucciones */
 .Instructions {
     display: flex;
-    flex-direction: row; /* Organiza en fila */
+    flex-direction: row; 
     gap: 25px;
     margin-top: 70px;
-    width: 100%; /* Asegura que el contenedor ocupe todo el espacio disponible */
+    max-width: 300px;
+    justify-content: center;
+    margin: 0 auto; 
+    padding-bottom: 50px;
 }
 
 .Instructions a {

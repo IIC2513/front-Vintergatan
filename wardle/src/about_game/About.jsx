@@ -1,18 +1,19 @@
 import { useNavigate } from 'react-router-dom';
 import styles from "./About.module.css";
+import Navbar from "../common/NavBar";
 
 export default function About() {
   const navigate = useNavigate();
 
   return (
     <>
-      <header className={styles.header}>WARdl</header>
+      <Navbar />
 
       <button onClick={() => navigate('/')} className={styles.backButton}>
         ↶
       </button>
 
-      <h1 className={styles.mainTitle}>¿Qué es esto?</h1>
+      <h1 className={styles.mainTitle}>Equipo desarrollador</h1>
       <h2 className={styles.text}>
         Este equipo ha creado “WARdl” como un juego estratégico pensado para
         jugar entre 2 y hasta 4 personas, donde tendrán que enfrentarse en

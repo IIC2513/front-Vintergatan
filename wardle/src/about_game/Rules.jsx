@@ -3,11 +3,14 @@ import tabla1 from './img/tabla1.png';
 import tabla2 from './img/tabla2.png';
 import tabla3 from './img/tabla3.png';
 import { useNavigate } from 'react-router-dom';
+import Navbar from "../common/NavBar";
+
 
 export default function Rules() {
   const navigate = useNavigate();
   return (
     <>
+      <Navbar />
       <header className={styles.header}>
         <h1 className={styles.h1}>Bienvenido a WARdl</h1>
         <p>El juego estratégico inspirado en Wordle</p>
