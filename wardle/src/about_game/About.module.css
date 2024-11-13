@@ -5,10 +5,10 @@ html, body {
 
 
 .header {
-    text-align: left; /* Centra el texto */
+    text-align: left; 
     color: black;
-    margin: 30px; /* Elimina márgenes */
-    position: fixed; /* Fija el encabezado en la parte superior */
+    margin: 30px; 
+    position: fixed; 
     top: 0;
     font-size: 3em;
     font-weight: bold;
@@ -16,13 +16,17 @@ html, body {
 
 h1 {
     text-align: center;
-    margin-top: 10px; /* Añade un margen superior para evitar que el contenido se superponga con el encabezado */
+    margin-top: 10px; 
 }
 
 h2 {
     text-align: center;
     margin-left: 280px;
     margin-right: 280px;
+    font-size: 1.2em; 
+    width: 80%; 
+    margin: 0 auto; 
+    margin-top: 20px;
 }
 
 .backButton {
@@ -38,13 +42,13 @@ h2 {
     display: flex;
     align-items: center;
     justify-content: center;
-    text-decoration: none; /* Evita que el texto sea subrayado */
+    text-decoration: none; 
 }
 
 .backButton:focus {
-    outline: none; /* Elimina el contorno cuando el botón está enfocado */
+    outline: none; 
 }
 
 .backButton:hover {
-    text-decoration: none; /* Asegura que el texto no sea subrayado al hacer hover */
+    text-decoration: none; 
 }
