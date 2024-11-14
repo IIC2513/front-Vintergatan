@@ -1,12 +1,12 @@
+
 .Login {
     width: 500px;
-    margin: 0 auto;
+    margin: 50px auto;
     padding: 20px;
     border: 1px solid #ddd;
     border-radius: 5px;
     box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.1);
     background-color: #f0faff;
-
   }
   
   .Login form label {
@@ -28,6 +28,7 @@
   
   .Login form input[type="submit"] {
     background-color: #1e90ff;
+    width: 200px;
     color: white;
     padding: 10px 20px;
     border: none;

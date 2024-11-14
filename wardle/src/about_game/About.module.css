@@ -52,3 +52,7 @@ h2 {
 .backButton:hover {
     text-decoration: none; 
 }
+
+.text {
+    font-size: large;
+}
