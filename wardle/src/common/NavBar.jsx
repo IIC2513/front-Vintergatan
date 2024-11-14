@@ -1,24 +1,14 @@
-import React, { useState } from 'react';
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
+import { AuthContext } from '../auth/AuthContext';
 import styles from './NavBar.module.css';
 
 export default function Navbar() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // Simula autenticación
-  const [username, setUsername] = useState("Guest"); // Nombre de usuario por defecto
-
-  const handleLogin = () => {
-    setIsAuthenticated(true);
-    setUsername("Usuario123"); // Simula un nombre de usuario cuando el usuario inicia sesión
-  };
-
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    setUsername("Guest");
-  };
+  const { token, logout, name } = useContext(AuthContext);
+  const isAuthenticated = Boolean(token);
 
   return (
     <nav className={styles.navbar}>
-
       <Link to="/" className={styles.logo}>Wardl</Link>
 
       <div className={styles.navLinks}>
@@ -28,11 +18,14 @@ export default function Navbar() {
 
         <div className={styles.userMenu}>
           <button className={styles.userButton}>
-            {isAuthenticated ? username : "Usuario"}
+            {isAuthenticated ? name : "Usuario"}
           </button>
           <div className={styles.dropdownContent}>
             {isAuthenticated ? (
-              <button onClick={handleLogout} className={styles.dropdownItem}>Cerrar sesión</button>
+              <>
+                <Link to="/room" className={styles.dropdownItem}>Perfil</Link>
+                <button onClick={logout} className={styles.dropdownItem}>Cerrar sesión</button>
+              </>
             ) : (
               <>
                 <Link to="/login" className={styles.dropdownItem}>Login</Link>

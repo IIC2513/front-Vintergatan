@@ -1,5 +1,4 @@
 import styles from "./MainPage.module.css";
-import Login from "../profile/Login";
 import Navbar from "./NavBar";
 
 
@@ -9,19 +8,12 @@ export default function MainPage() {
       <Navbar />
       <h1>WARdl!</h1>
       <div className={styles.Userinput}>
-        <h2 className={styles.title}>Inicia sesión en tu cuenta</h2>
-        <Login/>
-        <h2 className={styles.title}>
-          <a href="/register" className={styles.register}>o crea una nueva cuenta</a>
+        <h2>
+          <a href="/login" className={styles.register}>Inicia sesión en tu cuenta</a>
+          <p>o</p>
+          <a href="/register" className={styles.register}>crea una nueva cuenta</a>
         </h2>
       </div>
-      <div className={styles.Instructions}>
-        <a href="/rules">REGLAS DEL JUEGO</a>
-        <a href="/about">CÓMO JUGAR</a>                 
-          <h2 className={styles.title}>
-            <a href="/register" className={styles.register}>o crea una nueva cuenta</a>
-          </h2>
-        </div>
       <div className={styles.Instructions}>
         <a href="/rules">REGLAS DEL JUEGO</a>
         <a href="/about">CÓMO JUGAR</a>                    

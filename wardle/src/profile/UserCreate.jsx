@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import './Login.css'; 
+import Navbar from '../common/NavBar';
 
 export default function UserCreate() {
   const [username, setUsername] = useState("");
@@ -31,7 +32,8 @@ export default function UserCreate() {
 
   return (
     <>
-    <a href="/">Volver al Inicio</a>
+    <Navbar/>
+    <h2>Registrar Usuario</h2>
     <div className="Login">
       {msg.length > 0 && <div className="successMsg"> {msg} </div>}
 

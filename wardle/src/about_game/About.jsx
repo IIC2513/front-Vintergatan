@@ -14,7 +14,7 @@ export default function About() {
       </button>
 
       <h1 className={styles.mainTitle}>Equipo desarrollador</h1>
-      <h2 className={styles.text}>
+      <p className="text">
         Este equipo ha creado “WARdl” como un juego estratégico pensado para
         jugar entre 2 y hasta 4 personas, donde tendrán que enfrentarse en
         varias rondas de Wordl, intentando ganar la mayor cantidad de puntos en
@@ -23,7 +23,7 @@ export default function About() {
         proporcionarán ventajas o arruinarán a su oponente. Para conseguir estos
         potenciadores deberán pagar con monedas que se ganarán durante los
         juegos. ¡Prepárate para todo! Y no te quedes sin palabras de 5 letras.
-      </h2>
+      </p>
       <h2 className={styles.text}>
         Esperamos que lo disfrutes. <br /> ~ Gaspar, Axel y Paula.
       </h2>
