@@ -6,6 +6,7 @@ import About from '../about_game/About'
 import MainPage from './MainPage'
 import Room from '../game/Room'
 import Board from '../game/Board'
+import Login from '../profile/Login'
 
 export default function Routing() {
     return (
@@ -18,6 +19,7 @@ export default function Routing() {
                 <Route path={'/room/board'} element={<Board/>}/>
                 <Route path={'/register'} element={<UserCreate/>}/>
                 <Route path={'/about'} element={<About/>}/>
+                <Route path={'/login'} element={<Login/>}/>
             </Routes>
         </Router>
         </>
