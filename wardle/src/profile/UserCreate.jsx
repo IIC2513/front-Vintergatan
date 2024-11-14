@@ -1,80 +1,76 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import styles from "./UserCreate.module.css";
-import axios from "axios";
+import React, { useState } from 'react';
+import axios from 'axios';
+import './Login.css'; 
 
 export default function UserCreate() {
-  const [nombre, setNombre] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
-  const navigate = useNavigate();
+  const [error, setError] = useState(false);
+  const [msg, setMsg] = useState("");
 
-  const handleChange = (nombre) => {
-    setNombre(nombre);
-  };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/users`, {
-        name: nombre,
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    axios.post(`${import.meta.env.VITE_BACKEND_URL}/user/register`, {
+        name: username,
         email: email,
         password: password,
         experience: 0,
-        history: "",
+        history: ''
+      }).then((response) => {
+        console.log('Registro exitoso! Ahora puedes volver y loguearte');
+        setError(false);
+        setMsg('Registro exitoso! Ahora puedes volver y loguearte');
+      }).catch((error) => {      
+      console.error('Ocurrió un error:', error);
+      setError(true); // aquí puede haber más lógica para tratar los errores
       });
-      setMessage("Usuario creado con éxito");
-    } catch (error) {
-      setMessage("Hubo un error al crear el usuario");
-      console.error(error);
     }
-  };
 
   return (
     <>
-      <header className={styles.header}>WARdl</header>
-      <button onClick={() => navigate("/")} className={styles.backButton}>
-        ↶
-      </button>
-      <h1 className={styles.title}>Registro</h1>
+    <a href="/">Volver al Inicio</a>
+    <div className="Login">
+      {msg.length > 0 && <div className="successMsg"> {msg} </div>}
+
+      {error && <div className="error">Hubo un error con el Registro, por favor trata nuevamente.</div>}
 
       <form onSubmit={handleSubmit}>
-        <div>
-          <input
-            type="text"
-            placeholder="NOMBRE DE USUARIO..."
-            value={nombre}
-            onChange={(e) => handleChange(e.target.value)}
+        <label>
+          Username:
+          <input 
+            type="text" 
+            name="username"
+            value={username}
+            onChange={e => setUsername(e.target.value)}
             required
-            className={styles.input}
           />
-        </div>
-        <div>
-          <input
-            type="email"
-            placeholder="CORREO ELECTRÓNICO..."
+        </label>
+        <label>
+          Email:
+          <input 
+            type="email" 
+            name="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={e => setEmail(e.target.value)}
             required
-            className={styles.input}
           />
-        </div>
-        <div>
-          <input
-            type="password"
-            placeholder="CONTRASEÑA..."
+        </label>
+        <label>
+          Password:
+          <input 
+            type="password" 
+            name="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={e => setPassword(e.target.value)}
             required
-            className={styles.input}
           />
-        </div>
-        <button type="submit" className={styles.register}>
-          Crear Usuario
-        </button>
+        </label>
+        <input type="submit" value="Submit" />
       </form>
-      <p>{message}</p>
+    </div>
     </>
   );
 }
