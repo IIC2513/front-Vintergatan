@@ -3,8 +3,8 @@ import { AuthContext } from "./AuthContext";
 
 export default function AuthProvider({ children }) {
     const [token, setToken] = useState(localStorage.getItem('token') || null);
-    const [name, setName] = useState("Guest");
-    const [email, setEmail] = useState("");
+    const [name, setName] = useState(localStorage.getItem('name') || "Guest");
+    const [email, setEmail] = useState(localStorage.getItem('email') || "");
 
     function logout() {
         setToken(null);
@@ -15,10 +15,14 @@ export default function AuthProvider({ children }) {
     useEffect(() => {
         if (token) {
             localStorage.setItem('token', token);
+            localStorage.setItem('name', name);
+            localStorage.setItem('email', email);
         } else {
             localStorage.removeItem('token');
+            localStorage.removeItem('name');
+            localStorage.removeItem('email');
         }
-    }, [token]);
+    }, [token, name, email]);
 
     return (
         <AuthContext.Provider value={{ token, setToken, logout, name, setName, email, setEmail }}>

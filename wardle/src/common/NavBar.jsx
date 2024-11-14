@@ -18,7 +18,7 @@ export default function Navbar() {
 
         <div className={styles.userMenu}>
           <button className={styles.userButton}>
-            {isAuthenticated ? name : "Usuario"}
+            {isAuthenticated ? name : name}
           </button>
           <div className={styles.dropdownContent}>
             {isAuthenticated ? (
