@@ -20,6 +20,7 @@ export default function Routing() {
                 <Route path={'/register'} element={<UserCreate/>}/>
                 <Route path={'/about'} element={<About/>}/>
                 <Route path={'/login'} element={<Login/>}/>
+                <Route path="/sala/:salaId/:playerId/adivinar-palabra" element={<Board />} />
             </Routes>
         </Router>
         </>
