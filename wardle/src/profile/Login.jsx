@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { AuthContext } from '../auth/AuthContext';  // Asegúrate de que la ruta esté correcta
+import { AuthContext } from '../auth/AuthContext';
 import axios from 'axios';
 import './Login.css';
 import Navbar from '../common/NavBar';

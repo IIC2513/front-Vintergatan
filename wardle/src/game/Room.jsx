@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useContext } from "react";
 import styles from "./Room.module.css";
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../auth/AuthContext';
+import Navbar from "../common/NavBar";
 
 export default function Room() {
   const usuario = "usuario"; //cambiar por el nombre de usuario
@@ -14,6 +16,12 @@ export default function Room() {
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { logout } = useContext(AuthContext);
+
+  const handleLogout = () => {
+    logout(); 
+    navigate("/"); 
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('token');  // Asegúrate de que el token esté en localStorage
@@ -47,6 +55,8 @@ export default function Room() {
   }
 
   return (
+    <>
+    <Navbar/>
     <div className={styles.container}>
       {/* <header className={styles.header}>
         <h1>WARdl</h1>
@@ -62,7 +72,7 @@ export default function Room() {
 
         <button className={styles.button}>Cambiar personaje</button>
         <button className={styles.button}>Editar cuenta</button>
-        <button className={styles.logoutButton}>Salir de la sesión</button>
+        <button onClick={handleLogout} className={styles.logoutButton}>Cerrar sesión</button>
       </div>
 
 
@@ -108,5 +118,6 @@ export default function Room() {
         </div> */}
       </div>
     </div>
+    </>
   );
 }
