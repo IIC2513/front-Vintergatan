@@ -1,18 +1,109 @@
-input {
-    text-align: center;
-    margin: 10px;
-    width: 40px;
-    height: 40px;
-}
-
-.row {
-
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;  
+    align-items: center;
+    margin-top: 20px;  
 }
 
 .board {
-
+    display: grid;
+    grid-template-rows: repeat(6, 1fr); 
+    gap: 5px; 
+    width: 360px; 
+    height: 360px; 
+    max-width: 500px;
+    margin-bottom: 20px;
+    /*overflow: hidden;*/
 }
 
-.letter {
+input.cell:disabled {
+    background-color: #f0f0f0; 
+  }
 
+.row {
+    display: flex;  
+    flex-direction: row;
+    gap: 5px;
+}
+
+input.cell {
+    width: 50%;  
+    height: auto; 
+    font-size: 12px; 
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    outline: none;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.gray {
+    background-color: #808080; 
+    color: white;
+}
+
+.green {
+    background-color: #4CAF50; 
+    color: white;
+}
+
+.yellow {
+    background-color: #FFEB3B; 
+    color: black;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #4CAF50; 
+    color: white;
+    font-size: 18px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    margin-top: 20px;
+}
+
+button:hover {
+    background-color: #45a049;
+    transform: scale(1.05); 
+}
+
+
+.popup {
+    position: fixed;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(255, 0, 0, 0.8);
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 16px;
+    z-index: 100;
+}
+
+
+@media (max-width: 600px) {
+    .board {
+        width: 90vw;  /* El tablero ocupa el 90% del ancho en pantallas pequeñas */
+        height: auto;  /* Deja que el alto se ajuste automáticamente */
+    }
+    
+    .row {
+        flex-direction: column;  /* En pantallas pequeñas, las celdas se apilan en una columna */
+        align-items: center;
+    }
+
+    .cell {
+        width: 80vw;  /* Las celdas se ajustan al 80% del ancho del tablero en pantallas pequeñas */
+        height: 10vh;  /* Aumentar la altura de las celdas en pantallas pequeñas */
+        font-size: 22px;  /* Aumentar el tamaño de la letra en pantallas pequeñas */
+        margin-bottom: 5px;  /* Añadir espacio entre las celdas */
+    }
 }
