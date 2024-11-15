@@ -1,68 +1,78 @@
-import { useState } from "react";
-import axios from "axios";
-import '../common/index.css';
+import React, { useState } from 'react';
+import axios from 'axios';
+import './Login.css'; 
+import Navbar from '../common/NavBar';
 
 export default function UserCreate() {
-    const [nombre, setNombre] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [message, setMessage] = useState("");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(false);
+  const [msg, setMsg] = useState("");
 
-    const handleChange = (nombre) => {
-        setNombre(nombre);
-    };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            await axios.post(`${import.meta.env.VITE_BACKEND_URL}/users`, {
-                name: nombre,
-                email: email,
-                password: password,
-                experience: 0,
-                history: "",
-            });
-            setMessage("Usuario creado con éxito");
-        } catch (error) {
-            setMessage("Hubo un error al crear el usuario");
-            console.error(error);
-        }
-    };
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-    return (
-        <>
-            <a href="/">Volver al Inicio</a>
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label>Nombre:</label>
-                    <input
-                        type="text"
-                        value={nombre}
-                        onChange={(e) => handleChange(e.target.value)}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Email:</label>
-                    <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Password:</label>
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
-                </div>
-                <button type="submit">Crear Usuario</button>
-            </form>
-            <p>{message}</p>
-        </>
-    );
+    axios.post(`${import.meta.env.VITE_BACKEND_URL}/user/register`, {
+        name: username,
+        email: email,
+        password: password,
+        experience: 0,
+        history: ''
+      }).then((response) => {
+        console.log('Registro exitoso! Ahora puedes volver y loguearte');
+        setError(false);
+        setMsg('Registro exitoso! Ahora puedes volver y loguearte');
+      }).catch((error) => {      
+      console.error('Ocurrió un error:', error);
+      setError(true); // aquí puede haber más lógica para tratar los errores
+      });
+    }
+
+  return (
+    <>
+    <Navbar/>
+    <h2>Registrar Usuario</h2>
+    <div className="Login">
+      {msg.length > 0 && <div className="successMsg"> {msg} </div>}
+
+      {error && <div className="error">Hubo un error con el Registro, por favor trata nuevamente.</div>}
+
+      <form onSubmit={handleSubmit}>
+        <label>
+          Username:
+          <input 
+            type="text" 
+            name="username"
+            value={username}
+            onChange={e => setUsername(e.target.value)}
+            required
+          />
+        </label>
+        <label>
+          Email:
+          <input 
+            type="email" 
+            name="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            required
+          />
+        </label>
+        <label>
+          Password:
+          <input 
+            type="password" 
+            name="password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            required
+          />
+        </label>
+        <input type="submit" value="Submit" />
+      </form>
+    </div>
+    </>
+  );
 }
