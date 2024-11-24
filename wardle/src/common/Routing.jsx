@@ -20,7 +20,9 @@ export default function Routing() {
                 <Route path={'/register'} element={<UserCreate/>}/>
                 <Route path={'/about'} element={<About/>}/>
                 <Route path={'/login'} element={<Login/>}/>
-                <Route path="/sala/:salaId/:playerId/adivinar-palabra" element={<Board />} />
+                <Route path={"/sala/:salaId/:playerId/adivinar-palabra"} element={<Board />} />
+                <Route path={"/adivinar-palabra"} element={<Board />} />
+                <Route path={"/room/:id"} element={<Board />} />
             </Routes>
         </Router>
         </>

@@ -1,123 +1,224 @@
-import React, { useContext } from "react";
-import styles from "./Room.module.css";
+import React, { useContext, useState, useEffect } from "react";
 import axios from 'axios';
-import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../auth/AuthContext';
 import Navbar from "../common/NavBar";
+import styles from "./Room.module.css";
 
 export default function Room() {
-  const usuario = "usuario"; //cambiar por el nombre de usuario
-  const experience = 230; //cambiar por la experiencia del usuario
-  const player1 = "Gasparo420"; //cambiar por el nombre de usuario
-  const player2 = "Sr.Åberg"; //cambiar por el nombre de usuario
-  const player3 = "Paulina42"; //cambiar por el nombre de usuario
-
+  const [rooms, setRooms] = useState([]);  // Estado para las salas
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const { logout } = useContext(AuthContext);
 
-  const handleLogout = () => {
-    logout(); 
-    navigate("/"); 
-  };
-
   useEffect(() => {
-    const token = localStorage.getItem('token');  // Asegúrate de que el token esté en localStorage
+    const token = localStorage.getItem('token');
+    const playerID = localStorage.getItem('playerID');
 
     if (!token) {
-        setError('No estás autenticado');
+      setError('No estás autenticado');
+      return;
+    }
+
+    const fetchRooms = async () => {
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/player-rooms/${playerID}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        console.log('Salas desde el backend:', response.data); // Asegúrate de que los datos llegan bien
+        setRooms(response.data); // Actualiza el estado de las salas
+
+      } catch (error) {
+        setError('Error al obtener las salas');
+        console.error(error);
+      }
+    };
+
+    fetchRooms();
+
+
+    // Obtener los datos del usuario
+    axios.get(`${import.meta.env.VITE_BACKEND_URL}/user/show`, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+      })
+      .then(response => {
+          setUserData(response.data);
+          localStorage.setItem('playerID', response.data.id); // Guarda el ID si lo necesitas globalmente
+      })
+      .catch(err => {
+          setError('Error al obtener los datos del usuario');
+          console.error(err);
+      });
+    }, []); 
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
+
+  const handleJoinRoomBar = async () => {
+    const playerID = localStorage.getItem('playerID');
+    const roomCode = document.querySelector("input[placeholder='ESCRIBE UN CÓDIGO PARA UNIRTE A OTRA SALA...']").value;
+
+    if (!roomCode) {
+      alert("Por favor, ingresa un código de sala.");
+      return;
+    }
+
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/room/join`, {
+        player_id: playerID,
+        room_id: roomCode
+      });
+      alert(response.data.message);
+      navigate(`/room/${roomCode}`);
+    } catch (error) {
+      console.error(error);
+      alert('Error al unirse a la sala.');
+    }
+  };
+
+  const handleJoinRoom = async (roomCode) => {
+    const playerID = localStorage.getItem('playerID');
+
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/room/join`, {
+        player_ID: playerID,
+        room_ID: roomCode
+      });
+      alert(response.data.message);
+      navigate(`/room/${roomCode}`);
+    } catch (error) {
+      console.error(error);
+      alert('Error al unirse a la sala.');
+    }
+  };
+
+  const getHostIdFromToken = () => {
+    const token = localStorage.getItem('token'); 
+    if (!token) {
+      console.error('No token found');
+      return null;
+    }
+
+    try {
+        const decoded = parseJWT(token);
+        console.log(decoded);
+        return decoded.sub; // Asegúrate de que `id` existe en tu token
+    } catch (error) {
+        console.error('Error decoding token:', error);
+        return null;
+    }
+  }
+
+  function parseJWT(token) {
+    try {
+        const base64Payload = token.split('.')[1]; // Obtiene la segunda parte del token
+        const payload = atob(base64Payload); // Decodifica la parte Base64
+        return JSON.parse(payload); // Parsea el JSON
+    } catch (error) {
+        console.error('Error al decodificar el token:', error);
+        return null;
+    }
+  }
+  
+  const handleCreateRoom = async () => {
+    const token = localStorage.getItem('token'); // Asegúrate de obtener el token
+    const host_ID = getHostIdFromToken();  // Obtener el ID del host desde el token
+    if (!host_ID) {
+        alert('No se pudo obtener el ID del host');
         return;
     }
 
-    // Realiza la solicitud GET para obtener los datos del usuario
-    axios.get(`${import.meta.env.VITE_BACKEND_URL}/user/show`, {
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/room/create`, {
+        host_ID,  
+        map_ID: 1,  
+        player_count: 1,  
+        status: 'In progress',  
+      }, {
         headers: {
-            Authorization: `Bearer ${token}`  // Envía el token en el encabezado
+          Authorization: `Bearer ${token}`
         }
-    })
-    .then(response => {
-        setUserData(response.data);  // Almacena los datos del usuario
-    })
-    .catch(err => {
-        setError('Error al obtener los datos del usuario');
-        console.error(err);
-    });
-  }, []); // El hook se ejecutará solo una vez cuando el componente se monte
+      });
+      alert(`Sala creada con ID: ${response.data.roomId}`);
+      // Redirigir al usuario a la sala recién creada
+      navigate(`/room/${response.data.roomId}`);
+    } catch (error) {
+      console.error(error);
+      alert('Error al crear la sala.');
+    }
+  };
 
-  if (error) {
+  const startGame = async () => {
+    try {
+        await axios.post(`${import.meta.env.VITE_BACKEND_URL}/room/${salaId}/start`);
+        // Fetch inicial del estado de la sala y tableros
+        fetchBoard();
+    } catch (error) {
+        console.error("Error al iniciar la partida", error);
+    }
+  };
+
+    if (error) {
       return <div>{error}</div>;
-  }
-
-  if (!userData) {
+    }
+  
+    if (!userData) {
       return <div>Cargando...</div>;
-  }
+    }
 
-  return (
+    return (
     <>
-    <Navbar/>
-    <div className={styles.container}>
-      {/* <header className={styles.header}>
-        <h1>WARdl</h1>
-      </header>
-      <button className={styles.backButton}>↶</button>
- */}
-      <div className={styles.leftPanel}>
-        <h2>Bienvenid@ {userData.name}</h2>
-        <div className={styles.profileImage}>Personaje actual .PNG</div>
-        <div className={styles.experienceInfo}>
-          <p>Puntos de experiencia: {userData.experience} XP</p>
+      <Navbar />
+      <div className={styles.container}>
+        <div className={styles.leftPanel}>
+          <h2>Bienvenid@ {userData.name}</h2>
+          <div className={styles.profileImage}>Personaje actual .PNG</div>
+          <div className={styles.experienceInfo}>
+            <p>Puntos de experiencia: {userData.experience} XP</p>
+          </div>
+          <button className={styles.button}>Cambiar personaje</button>
+          <button className={styles.button}>Editar cuenta</button>
+          <button onClick={handleLogout} className={styles.logoutButton}>Cerrar sesión</button>
         </div>
 
-        <button className={styles.button}>Cambiar personaje</button>
-        <button className={styles.button}>Editar cuenta</button>
-        <button onClick={handleLogout} className={styles.logoutButton}>Cerrar sesión</button>
-      </div>
+        <div className={styles.rightPanel}>
+          <h1>¿Listo para jugar?</h1>
+          <div className={styles.row1}>
+            <input
+              type="text"
+              placeholder="ESCRIBE UN CÓDIGO PARA UNIRTE A OTRA SALA..."
+              className={styles.inputCode}
+            />
+            <button className={styles.joinButton} onClick={handleJoinRoomBar}>➔</button>
+          </div>
 
+          <div className={styles.roomList}>
+            <h2>Salas disponibles</h2>
+            <ul>
+            {Array.isArray(rooms) && rooms.length > 0 ? (
+              rooms.map(room => (
+                <li key={room.id}>
+                  Sala {room.id} - {room.status}
+                  <button onClick={() => handleJoinRoom(room.id)} disabled={room.status === 'Finished'}>{room.status === 'Finished' ? 'Finalizada' : 'Unirse'}</button>
+                </li>
+              ))
+            ) : (
+                <li>No hay salas disponibles</li>
+            )}
+            </ul>
+          </div>
 
-      <div className={styles.rightPanel}>
-        <h1>¿Listo para jugar?</h1>
-        <div className={styles.row1}>
-        <input
-          type="text"
-          placeholder="ESCRIBE UN CÓDIGO PARA UNIRTE A OTRA SALA..."
-          className={styles.inputCode}
-        />
-        <button className={styles.joinButton}>➔</button>
-            </div>
-
-        {/* <div className={styles.codeRow}>
-          <h2>Administra tu sala</h2>
-          <div className={styles.roomCode}>CÓDIGO: #1234</div>
+          <button onClick={handleCreateRoom} className={styles.createRoomButton}>Crear nueva sala</button>
         </div>
-
-        <div className={styles.adminPanel}>
-          <label className={styles.toggle}>
-            Power-Ups
-            <input type="checkbox" />
-            <span className={styles.slider}></span>
-          </label>
-          <ul className={styles.playersList}>
-            <li>
-              {player1} <button className={styles.removeButton}>X</button>
-            </li>
-            <li>
-              {player2} <button className={styles.removeButton}>X</button>
-            </li>
-            <li>
-              {player3} <button className={styles.removeButton}>X</button>
-            </li>
-          </ul>
-          <button className={styles.startButton}>COMIENZA</button>
-          <footer className={styles.footer}>
-            <h3>
-              <a href="/partidas">Revisa tu historial de partidas</a>
-            </h3>
-          </footer>
-        </div> */}
       </div>
-    </div>
     </>
   );
-}
+};
