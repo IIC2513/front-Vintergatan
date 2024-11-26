@@ -17,7 +17,7 @@ export default function Navbar() {
         <Link to="/game" className={styles.navLink}>Ir a partida</Link>
 
         <div className={styles.userMenu}>
-          <button className={styles.userButton}>
+          <button className={`${styles.navLink} ${styles.userButton}`}>
             {isAuthenticated ? name : name}
           </button>
           <div className={styles.dropdownContent}>
