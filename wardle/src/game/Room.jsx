@@ -14,7 +14,6 @@ export default function Room() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    const playerID = localStorage.getItem('playerID');
 
     if (!token) {
       setError('No estás autenticado');
@@ -39,7 +38,6 @@ export default function Room() {
     };
 
     fetchRooms();
-
 
     // Obtener los datos del usuario
     axios.get(`${import.meta.env.VITE_BACKEND_URL}/user/show`, {
@@ -130,12 +128,16 @@ export default function Room() {
   };
 
   const handleJoinRoom = async (roomCode) => {
-    const playerID = localStorage.getItem('userID');
+    const playerInfo = await getPlayerInfoFromToken();
+    const player_id = playerInfo.id
+
+    console.log("ID jugador:", player_id)
+    console.log("Salas:", roomCode)
 
     try {
       const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/room/join`, {
-        player_ID: playerID,
-        room_ID: roomCode
+        player_id: player_id,
+        room_id: roomCode
       });
       alert(response.data.message);
       navigate(`/room/${roomCode}`);
@@ -160,7 +162,36 @@ export default function Room() {
         console.error('Error decoding token:', error);
         return null;
     }
-  }
+  };
+
+  const getPlayerInfoFromToken = async () => {
+    const user_id = getHostIdFromToken();
+    console.log('User ID:', user_id)
+    if (!user_id) {
+      console.error('Error al encontrar el ID del usuario');
+      return null;
+    }
+
+    const token = localStorage.getItem('token');  // Obtener el token desde localStorage
+
+    if (!token) {
+        console.error('No se encontró el token');
+        return null;
+    }
+
+    try {
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/players/${user_id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        console.log('Respuesta:', response.data)
+        return response.data;
+    } catch (error) {
+        console.error('Error decoding token:', error);
+        return null;
+    }
+  };
 
   function parseJWT(token) {
     try {
@@ -175,7 +206,10 @@ export default function Room() {
   
   const handleCreateRoom = async () => {
     const token = localStorage.getItem('token'); // Asegúrate de obtener el token
-    const host_ID = getHostIdFromToken();  // Obtener el ID del host desde el token
+    const player_info = await getPlayerInfoFromToken();  // Obtener el ID del host desde el token
+    const host_ID = player_info.id
+    console.log('Host ID:', host_ID)
+
     if (!host_ID) {
         alert('No se pudo obtener el ID del host');
         return;
