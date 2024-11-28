@@ -23,7 +23,7 @@ export default function Room() {
 
     const fetchRooms = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/player-rooms/${playerID}`, {
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/rooms`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -49,12 +49,57 @@ export default function Room() {
       })
       .then(response => {
           setUserData(response.data);
-          localStorage.setItem('playerID', response.data.id); // Guarda el ID si lo necesitas globalmente
+          localStorage.setItem('userID', response.data.id); // Guarda el ID si lo necesitas globalmente
       })
       .catch(err => {
           setError('Error al obtener los datos del usuario');
           console.error(err);
       });
+
+    const handleCreatePlayer = async () => {
+      const token = localStorage.getItem('token');
+      const user_ID = getHostIdFromToken();
+      
+      if (!user_ID) {
+        alert('No se pudo obtener el ID del usuario');
+        return;
+      }
+    
+      try {
+        const checkResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/players/${user_ID}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        if (checkResponse.data) {
+          return; // Salir de la función para evitar la creación del jugador
+        }
+      } catch (error) {
+        if (error.response && error.response.status === 404) {
+          console.log('No se encontró jugador para este usuario, se creará uno nuevo.');
+        } else {
+          console.error('Error al verificar el jugador:', error);
+          return; // Salir de la función si hubo un error al verificar
+        }
+      }
+    
+      try {
+        // Crear el jugador si no existe
+        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/player/create`, {
+          user_ID,
+        }, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+      } catch (error) {
+        console.error('Error al crear el jugador:', error);
+      }
+    };
+
+    handleCreatePlayer();
+
     }, []); 
 
   const handleLogout = () => {
@@ -63,7 +108,7 @@ export default function Room() {
   };
 
   const handleJoinRoomBar = async () => {
-    const playerID = localStorage.getItem('playerID');
+    const playerID = localStorage.getItem('userID');
     const roomCode = document.querySelector("input[placeholder='ESCRIBE UN CÓDIGO PARA UNIRTE A OTRA SALA...']").value;
 
     if (!roomCode) {
@@ -85,7 +130,7 @@ export default function Room() {
   };
 
   const handleJoinRoom = async (roomCode) => {
-    const playerID = localStorage.getItem('playerID');
+    const playerID = localStorage.getItem('userID');
 
     try {
       const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/room/join`, {
@@ -174,7 +219,7 @@ export default function Room() {
       return <div>Cargando...</div>;
     }
 
-    return (
+  return (
     <>
       <Navbar />
       <div className={styles.container}>
