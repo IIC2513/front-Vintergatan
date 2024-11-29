@@ -1,15 +1,26 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import axios from 'axios';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { AuthContext } from '../auth/AuthContext';
 import Navbar from "../common/NavBar";
-import styles from "./Room.module.css";
+import GameMap from "./GameMap";
+
 
 export default function GameRoom() {
     const navigate = useNavigate();
     const { roomId } = useParams();
     const location = useLocation();
-    const { token } = useContext(AuthContext);
+    const { token, name } = useContext(AuthContext);
+    const [players, setPlayers] = useState([]);
+
+    useEffect(() => {
+        setPlayers([
+        { name: "Player1", points: 50 },
+        { name: "Player2", points: 80 },
+        { name: "Player3", points: 30 },
+        { name: "Player4", points: 90 },
+        ]);
+    }, []);
 
     const getHostIdFromToken = () => {
         const token = localStorage.getItem('token'); 
@@ -106,6 +117,7 @@ export default function GameRoom() {
         <div>
             <Navbar />
             <h1>Sala {roomId}</h1>
+            <GameMap roomId = {roomId} players={players} />
             <button onClick={handleExitRoom}>Exit</button>
         </div>
     );
