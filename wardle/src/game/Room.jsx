@@ -9,6 +9,9 @@ export default function Room() {
   const [rooms, setRooms] = useState([]);  // Estado para las salas
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState(null);
+  const [character, setCharacter] = useState('');
+  const [playerNow, setPlayerNow] = useState(null);
+  const [characterImage, setCharacterImage] = useState(null);
   const navigate = useNavigate();
   const { logout } = useContext(AuthContext);
 
@@ -97,6 +100,24 @@ export default function Room() {
     };
 
     handleCreatePlayer();
+
+    const fetchCharacterImage = async () => {
+      try {
+        const playerInfo = await getPlayerInfoFromToken(); // Llama a la función existente
+        const characterId = playerInfo.character;
+        
+        if (characterId) {
+          setCharacterImage(`/characters/letter-${characterId}.jpg`);
+        } else {
+          setError("No se pudo obtener el ID del personaje");
+        }
+      } catch (err) {
+        console.error("Error al obtener datos del jugador:", err);
+        setError("Hubo un error al cargar los datos");
+      }
+    };
+
+    fetchCharacterImage();
 
     }, []); 
 
@@ -235,6 +256,29 @@ export default function Room() {
     }
   };
 
+  const getCharacterImage = (characterId) => {
+    return `/characters/letter-${characterId}.jpg`;
+  };
+
+  const handleChangeCharacter = async () => {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/player/update-character`,{},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      ); 
+      console.log(response.data);
+      const newCharacter = response.data.character;
+      setCharacter(newCharacter);
+      setCharacterImage(getCharacterImage(newCharacter)); 
+    } catch (error) {
+      console.error("Error al cambiar el personaje:", error);
+    }
+  };
+
   const startGame = async () => {
     try {
         await axios.post(`${import.meta.env.VITE_BACKEND_URL}/room/${salaId}/start`);
@@ -244,6 +288,7 @@ export default function Room() {
         console.error("Error al iniciar la partida", error);
     }
   };
+
 
     if (error) {
       return <div>{error}</div>;
@@ -259,11 +304,17 @@ export default function Room() {
       <div className={styles.container}>
         <div className={styles.leftPanel}>
           <h2>Bienvenid@ {userData.name}</h2>
-          <div className={styles.profileImage}>Personaje actual .PNG</div>
+          <div className={styles.profileImage}>
+            <img
+              src={characterImage}
+              alt="Personaje actual"
+              className={styles.characterImage}
+            />
+          </div>
           <div className={styles.experienceInfo}>
             <p>Puntos de experiencia: {userData.experience} XP</p>
           </div>
-          <button className={styles.button}>Cambiar personaje</button>
+          <button className={styles.button} onClick={handleChangeCharacter}>Cambiar personaje</button>
           <button className={styles.button}>Editar cuenta</button>
           <button onClick={handleLogout} className={styles.logoutButton}>Cerrar sesión</button>
         </div>
@@ -278,7 +329,6 @@ export default function Room() {
             />
             <button className={styles.joinButton} onClick={handleJoinRoomBar}>➔</button>
           </div>
-
           <div className={styles.roomList}>
             <h2>Salas disponibles</h2>
             <ul>
