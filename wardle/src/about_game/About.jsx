@@ -8,13 +8,16 @@ export default function About() {
   return (
     <>
       <Navbar />
-
       <button onClick={() => navigate('/')} className={styles.backButton}>
         ↶
       </button>
 
+    <div className={styles.aboutContainer}>
+
+     
+
       <h1 className={styles.mainTitle}>Equipo desarrollador</h1>
-      <p className="text">
+      <p className={styles.text}>
         Este equipo ha creado “WARdl” como un juego estratégico pensado para
         jugar entre 2 y hasta 4 personas, donde tendrán que enfrentarse en
         varias rondas de Wordl, intentando ganar la mayor cantidad de puntos en
@@ -27,6 +30,7 @@ export default function About() {
       <h2 className={styles.text}>
         Esperamos que lo disfrutes. <br /> ~ Gaspar, Axel y Paula.
       </h2>
+    </div>
     </>
   );
 }
