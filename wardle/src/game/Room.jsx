@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useRef } from "react";
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../auth/AuthContext';
@@ -14,10 +14,15 @@ export default function Room() {
   const [characterImage, setCharacterImage] = useState(null);
   const navigate = useNavigate();
   const { logout } = useContext(AuthContext);
+  const hasRun = useRef(false);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    if (hasRun.current) return; // Si ya se ejecutó, salir del efecto
 
+    hasRun.current = true;
+    
+    const token = localStorage.getItem('token');
+      
     if (!token) {
       setError('No estás autenticado');
       return;
