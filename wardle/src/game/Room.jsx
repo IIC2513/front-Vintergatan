@@ -140,7 +140,7 @@ export default function Room() {
         room_id: roomCode
       });
       alert(response.data.message);
-      navigate(`/room/${roomCode}`);
+      navigate(`/gameroom/${roomCode}`);
     } catch (error) {
       console.error(error);
       alert('Error al unirse a la sala.');
@@ -202,7 +202,7 @@ export default function Room() {
         console.error('Error al decodificar el token:', error);
         return null;
     }
-  }
+  };
   
   const handleCreateRoom = async () => {
     const token = localStorage.getItem('token'); // Asegúrate de obtener el token
@@ -228,7 +228,7 @@ export default function Room() {
       });
       alert(`Sala creada con ID: ${response.data.roomId}`);
       // Redirigir al usuario a la sala recién creada
-      navigate(`/room/${response.data.roomId}`);
+      navigate(`/gameroom/${response.data.roomId}`);
     } catch (error) {
       console.error(error);
       alert('Error al crear la sala.');
