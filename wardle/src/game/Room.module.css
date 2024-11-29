@@ -6,65 +6,71 @@
   }
 
   
-  .leftPanel {
-    background-color: #f0f0f0;
-    border-radius: 10px;
-    padding: 20px;
-    width: 350px;
-    text-align: center; /* Añade esto para centrar el contenido de texto */
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* Centra los elementos hijos horizontalmente */  }
+.leftPanel {
+  background-color: #f0f0f0;
+  border-radius: 10px;
+  padding: 20px;
+  width: 350px;
+  text-align: center; 
+  display: flex;
+  flex-direction: column;
+  align-items: center;  
+}
 
-  h2 {
-white-space: nowrap;
-font-weight: bold;
-font-size: 1.8em;
+h2 {
+  white-space: normal; 
+  word-wrap: break-word; 
+  font-weight: bold;
+  font-size: 1.8em;
+  width: 100%;
 }
 
 .experienceInfo {
-    width: 100%; /* Asegura que ocupe todo el ancho del contenedor */
-    text-align: left; /* Alinea el texto a la izquierda */
-    margin-top: 10px; /* Espacio superior opcional */
+    width: 100%;
+    text-align: left; 
+    margin-top: 10px; 
   }
 
-  .profileImage {
-    background-color: #ddd;
-    border-radius: 50%;
-    width: 150px;
-    height: 150px;
-    margin: 0 auto 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .button {
-    background-color: #ccc;
-    border: none;
-    border-radius: 5px;
-    padding: 10px;
-    width: 100%;
-    margin: 10px 0;
-    cursor: pointer;
-    text-align: center;
-  }
-  
-  .logoutButton {
-    background-color: #ffcccc;
-    width: 100%;
-    margin: 10px 0;
-    
-  }
-  .rightPanel {
-    width: 550px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+.profileImage {
+  background-color: white;
+  border-radius: 30%; 
+  object-fit: cover;
+  height: 150px;
+  width: 190px;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.row1 {
+.profileImage img {
+  height: 130px;
+  width: auto;
+  border-radius: 10%; 
+}
+  
+.button {
+  background-color: #ccc;
+  border: none;
+  border-radius: 5px;
+  padding: 10px;
+  width: 100%;
+  margin: 10px 0;
+  cursor: pointer;
+  text-align: center;
+}
 
+.logoutButton {
+  background-color: #ffcccc;
+  width: 100%;
+  margin: 10px 0;
+  
+}
+.rightPanel {
+  width: 550px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 
@@ -86,22 +92,7 @@ font-size: 1.8em;
     cursor: pointer;
   }
 
-/* 
-.codeRow {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-weight: bold;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #ddd; 
-    margin-bottom: 20px;
-}
 
-
-.roomCode {
-    color: #4caf50; 
-    font-size: 1.2em;
-} */
 
 .adminPanel {
     background-color: #f9f9f9;
