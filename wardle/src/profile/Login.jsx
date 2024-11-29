@@ -3,7 +3,7 @@ import { AuthContext } from '../auth/AuthContext';
 import axios from 'axios';
 import './Login.css';
 import Navbar from '../common/NavBar';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Login() {
   const { setToken, setName, setEmail } = useContext(AuthContext);
@@ -66,6 +66,8 @@ export default function Login() {
         </label>
         <input type="submit" value="Enviar" />
       </form>
+      <h3>¿No estas registrado? Registrate aqui</h3>
+      <Link to="/register" className="link">Registro de Usuario</Link>
     </div>
     </>
   );

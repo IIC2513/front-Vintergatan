@@ -1,8 +1,22 @@
 import styles from "./MainPage.module.css";
 import Navbar from "./NavBar";
+import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../auth/AuthContext";
 
 
 export default function MainPage() {
+  const { token } = useContext(AuthContext); // Obtener el token del contexto
+  const navigate = useNavigate();
+
+  const handlePlayClick = () => {
+    if (token) {
+      navigate("/room"); // Redirige a /room si está autenticado
+    } else {
+      navigate("/login"); // Redirige a /register si no está autenticado
+    }
+  };
+
   return (
     <>
       <Navbar />
@@ -15,9 +29,11 @@ export default function MainPage() {
         </h2>
       </div>
       <div className={styles.Instructions}>
-        <a href="/rules">REGLAS DEL JUEGO</a>
-        <a href="/about">CÓMO JUGAR</a>                    
-        <a href="/visita">JUGAR COMO VISITA</a>{" "}        {/* todavía no existe la ruta */}
+        <a onClick={handlePlayClick} className={styles.register}>
+          COMIENZA A JUGAR
+        </a>
+        <a href="/rules">REGLAS DEL JUEGO</a>                    
+        <a href="/about">CONOCE AL EQUIPO</a>{" "}        {/* todavía no existe la ruta */}
       </div>
     </>
   );
