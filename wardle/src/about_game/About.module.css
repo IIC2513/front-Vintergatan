@@ -3,7 +3,6 @@ html, body {
     padding: 0;
 }
 
-
 .header {
     text-align: left; 
     color: black;
@@ -13,6 +12,12 @@ html, body {
     font-size: 3em;
     font-weight: bold;
 }
+
+.aboutContainer {
+    margin-left: 250px;
+    margin-right: 250px;
+}
+
 
 h1 {
     text-align: center;
@@ -54,5 +59,6 @@ h2 {
 }
 
 .text {
-    font-size: large;
+    font-size: large;   
+
 }
