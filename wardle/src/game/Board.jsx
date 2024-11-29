@@ -3,7 +3,6 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import "./Board.css";
 import Navbar from "../common/NavBar";
-import { getRandomWord } from "../words/words";
 
 const Board = () => {
   const { salaId, playerId } = useParams();
@@ -17,7 +16,6 @@ const Board = () => {
 
   // Manejar cambio en las celdas
 
-  // Axel: Cambia a pasar al siguiente celda
   const handleInputChange = (rowIndex, colIndex, value) => {
     if (value.length > 1) return; // Evitar más de una letra
     const newMatrix = [...matrix];
@@ -33,14 +31,28 @@ const Board = () => {
         }
     }
   };
-
-
-  // Inicializar palabra secreta al montar el componente
   useEffect(() => {
-    const randomWord = getRandomWord();
-    setSecretWord(randomWord);
-    console.log("Palabra secreta:", randomWord); // Elimina el print para la versión final
+    console.log("Player ID desde useParams:", playerId);
+    console.log("Room ID desde useParams:", salaId);
+  
+    const startGame = async () => {
+      try {
+        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/game/start-game`, {
+          playerId: playerId, // ID del jugador
+          roomId: salaId,     // ID de la sala
+        });
+        console.log("Respuesta de start-game:", response.data);
+        setSecretWord(response.data.secretWord); // Almacena la palabra secreta
+        console.log(secretWord);
+      } catch (error) {
+        console.error("Error al iniciar el juego:", error);
+        setErrorMessage("Error al inicializar el juego.");
+      }
+    };
+  
+    startGame();
   }, []);
+  
 
   useEffect(() => {
     // Mover el foco al primer input de la nueva fila cuando cambie currentAttempt
@@ -51,9 +63,10 @@ const Board = () => {
 }, [currentAttempt]); // Ejecutar este efecto cada vez que currentAttempt cambie
 
 
-  const handleGuessSubmit = () => {
+const handleGuessSubmit = async () => {
     const rowIndex = currentAttempt - 1; // Fila actual
     const currentWord = matrix[rowIndex].join(""); // Palabra ingresada
+
     if (currentWord.length < 5) {
         setErrorMessage("Debes completar la fila antes de enviar.");
         setTimeout(() => setErrorMessage(""), 3000);
@@ -64,16 +77,30 @@ const Board = () => {
     updatedColorsMatrix[rowIndex] = calculateColors(currentWord, secretWord);
     setColorsMatrix(updatedColorsMatrix);
 
-    if (currentWord === secretWord) {
-        setTimeout(() => alert("¡Correcto!"), 100); 
-        // Envia la información al backend
+    // Enviar la palabra adivinada al backend
+    try {
+        const response = await axios.post(
+            `${import.meta.env.VITE_BACKEND_URL}/game/adivinar-palabra`,
+            {
+                player_id: playerId, // ID del jugador
+                attempt: currentAttempt, // Intento actual
+                matrix, // Matriz actualizada
+            }
+        );
+        console.log("Palabra enviada al backend:", currentWord);
+        console.log("Respuesta del servidor:", response.data);
+    } catch (error) {
+        console.error("Error al enviar la palabra al backend:", error);
+        setErrorMessage("Error al guardar el intento en el servidor.");
+        setTimeout(() => setErrorMessage(""), 3000);
+    }
 
+    if (currentWord === secretWord) {
+        setTimeout(() => alert("¡Correcto!"), 100);
     } else if (currentAttempt < 6) {
         setCurrentAttempt(currentAttempt + 1); // Actualiza el intento actual
     } else {
         setTimeout(() => alert(`Has perdido. La palabra era: ${secretWord}`), 100);
-      
-        // Envia la información al backend
     }
 };
 
