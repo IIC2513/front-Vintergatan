@@ -90,10 +90,10 @@ export default function GameRoom() {
 
         try {
             const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/room/delete/${roomId}`, {
-                headers: { 
-                    Authorization: `Bearer ${token}`, 
-                    player_id: playerId
-                }
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                params: { playerId },
             });
             alert(response.data.message || 'Sala eliminada exitosamente.');
             navigate('/');
@@ -106,6 +106,7 @@ export default function GameRoom() {
     const handleExitRoom = () => {
         const isConfirmed = window.confirm('¿Estás seguro de que quieres salir de la sala? Esta se eliminará.');
         if (isConfirmed) {
+            console.log("se intenta borrar")
             deleteRoom(roomId);
         } else {
             window.history.pushState({}, '', location.pathname);

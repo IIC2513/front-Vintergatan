@@ -61,7 +61,6 @@ const getRoomId = async (playerId) => {
 };
 
 
-  // Inicializar palabra secreta al montar el component
 
   useEffect(() => {
   
@@ -97,9 +96,6 @@ const getRoomId = async (playerId) => {
   
     startGame();
   }, []);
-  
-
-
   
   const getHostIdFromToken = () => {
     const token = localStorage.getItem('token'); 
@@ -158,8 +154,6 @@ const getRoomId = async (playerId) => {
         return null;
     }
   };
-  
-  
 
   useEffect(() => {
     // Mover el foco al primer input de la nueva fila cuando cambie currentAttempt
@@ -169,7 +163,7 @@ const getRoomId = async (playerId) => {
     }
   }, [currentAttempt]); // Ejecutar este efecto cada vez que currentAttempt cambie
 
-const handleGuessSubmit = async () => {
+  const handleGuessSubmit = async () => {
     const token = localStorage.getItem("token");
     const rowIndex = currentAttempt - 1; // Fila actual
     const currentWord = matrix[rowIndex].join(""); // Palabra ingresada
