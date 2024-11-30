@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, useRef } from "react";
+import { useContext, useState, useEffect, useRef, useCallback } from "react";
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../auth/AuthContext';
@@ -9,8 +9,6 @@ export default function Room() {
   const [rooms, setRooms] = useState([]);  // Estado para las salas
   const [userData, setUserData] = useState(null);
   const [error, setError] = useState(null);
-  const [character, setCharacter] = useState('');
-  const [playerNow, setPlayerNow] = useState(null);
   const [characterImage, setCharacterImage] = useState(null);
   const navigate = useNavigate();
   const { logout } = useContext(AuthContext);
@@ -92,7 +90,7 @@ export default function Room() {
     
       try {
         // Crear el jugador si no existe
-        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/player/create`, {
+        await axios.post(`${import.meta.env.VITE_BACKEND_URL}/player/create`, {
           user_ID,
         }, {
           headers: {
@@ -124,7 +122,7 @@ export default function Room() {
 
     fetchCharacterImage();
 
-    }, []); 
+    }, [getHostIdFromToken, getPlayerInfoFromToken]); 
 
   const handleLogout = () => {
     logout();
@@ -174,7 +172,7 @@ export default function Room() {
   };
 
   //saca estos
-  const getHostIdFromToken = () => {
+  const getHostIdFromToken = useCallback(() => {
     const token = localStorage.getItem('token'); 
     if (!token) {
       console.error('No token found');
@@ -189,9 +187,10 @@ export default function Room() {
         console.error('Error decoding token:', error);
         return null;
     }
-  };
+  },[]);
+
 //saca estos
-  const getPlayerInfoFromToken = async () => {
+  const getPlayerInfoFromToken = useCallback(async () => {
     const user_id = getHostIdFromToken();
     console.log('User ID:', user_id)
     if (!user_id) {
@@ -218,7 +217,7 @@ export default function Room() {
         console.error('Error decoding token:', error);
         return null;
     }
-  };
+  }, [getHostIdFromToken]);
 
   function parseJWT(token) {
     try {
@@ -278,20 +277,9 @@ export default function Room() {
       ); 
       console.log(response.data);
       const newCharacter = response.data.character;
-      setCharacter(newCharacter);
       setCharacterImage(getCharacterImage(newCharacter)); 
     } catch (error) {
       console.error("Error al cambiar el personaje:", error);
-    }
-  };
-
-  const startGame = async () => {
-    try {
-        await axios.post(`${import.meta.env.VITE_BACKEND_URL}/room/${salaId}/start`);
-        // Fetch inicial del estado de la sala y tableros
-        fetchBoard();
-    } catch (error) {
-        console.error("Error al iniciar la partida", error);
     }
   };
 

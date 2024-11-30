@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useRef } from "react";
+import { useContext, useEffect, useState, useRef, useCallback } from "react";
 import axios from 'axios';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { AuthContext } from '../auth/AuthContext';
@@ -14,11 +14,11 @@ export default function GameRoom() {
     const { token, name } = useContext(AuthContext);
     const [players, setPlayers] = useState([]);
     const [boards, setBoards] = useState([]); // Tableros de todos los jugadores
-    const [currentPlayer, setCurrentPlayer] = useState(null); // Jugador actual  
+    const [currentPlayer, setCurrentPlayer] = useState(null); // Jugador actual 
 
     const hasRun = useRef(false);
 
-    const getHostIdFromToken = () => {
+    const getHostIdFromToken = useCallback(() => {
         const token = localStorage.getItem('token'); 
         if (!token) {
           console.error('No token found');
@@ -34,9 +34,9 @@ export default function GameRoom() {
             console.error('Error decoding token:', error);
             return null;
         }
-    };
+    }, []);
     
-    const getPlayerInfoFromToken = async () => {
+    const getPlayerInfoFromToken =  useCallback(async () => {
         const user_id = getHostIdFromToken();
         console.log('User ID:', user_id)
         if (!user_id) {
@@ -64,7 +64,7 @@ export default function GameRoom() {
             console.error('Error decoding token:', error);
             return null;
         }
-    };
+    }, [getHostIdFromToken]);
     
     function parseJWT(token) {
         try {
@@ -128,7 +128,7 @@ export default function GameRoom() {
         const interval = setInterval(fetchGameState, 3000); // Actualiza cada 3 segundos
       
         return () => clearInterval(interval); // Limpia el intervalo al desmontar
-    }, [roomId]);
+    },[roomId]);
 
     useEffect(() => {
         if (hasRun.current) return;
@@ -153,7 +153,7 @@ export default function GameRoom() {
             }
         };
         createPlayerBoard();
-    }, []);
+    }, [getPlayerInfoFromToken, roomId, token]);
 
     return (
         <div>

@@ -1,11 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
 import "./Board.css";
 
 const Board = () => {
-  //const { roomId, playerId } = useParams();
-  const { roomId, playerId } = useState("");
+  //const { roomId, playerId } = useState("");
   const [matrix, setMatrix] = useState(Array(6).fill(Array(5).fill(""))); // Tablero
   const [currentAttempt, setCurrentAttempt] = useState(1); // Intento actual
   const [errorMessage, setErrorMessage] = useState(""); // Mensaje de error
@@ -94,9 +92,9 @@ const getRoomId = async (playerId) => {
     };
   
     startGame();
-  }, []);
+  }, [getPlayerInfoFromToken, secretWord]);
   
-  const getHostIdFromToken = () => {
+  const getHostIdFromToken = useCallback(() => {
     const token = localStorage.getItem('token'); 
     if (!token) {
       console.error('No token found');
@@ -111,9 +109,9 @@ const getRoomId = async (playerId) => {
         console.error('Error decoding token:', error);
         return null;
     }
-  };
+  }, []);
 
-  const getPlayerInfoFromToken = async () => {
+  const getPlayerInfoFromToken = useCallback(async () => {
     const user_id = getHostIdFromToken();
     console.log('User ID:', user_id)
     if (!user_id) {
@@ -140,7 +138,7 @@ const getRoomId = async (playerId) => {
         console.error('Error decoding token:', error);
         return null;
     }
-  };
+  }, [getHostIdFromToken]);
 
   
   function parseJWT(token) {

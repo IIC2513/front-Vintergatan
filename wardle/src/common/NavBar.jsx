@@ -1,6 +1,6 @@
-import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../auth/AuthContext';
+import { useContext } from 'react';
 import styles from './NavBar.module.css';
 import axios from 'axios';
 
@@ -98,7 +98,7 @@ export default function Navbar() {
         console.log("Navbar:", playerId)
 
         try {
-            const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/room/delete/${roomId}`, {
+            await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/room/delete/${roomId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },

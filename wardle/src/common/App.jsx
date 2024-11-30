@@ -2,7 +2,6 @@ import { useState } from 'react';
 import reactLogo from './../assets/react.svg';
 import viteLogo from '/vite.svg';
 import './App.css';
-import AuthProvider from './auth/AuthProvider'; // Importa AuthProvider
 import Navbar from "./NavBar";
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';  // Importa los componentes necesarios
 

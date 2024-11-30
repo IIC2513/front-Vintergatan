@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 
 export default function Word({ row, onEnter }) {
     const [values, setValues] = useState(Array(5).fill(""));
@@ -50,3 +51,8 @@ export default function Word({ row, onEnter }) {
         </div>
     );
 }
+
+Word.propTypes = {
+    row: PropTypes.any.isRequired,  // roomId puede ser cualquier cosa
+    onEnter: PropTypes.any.isRequired,  // players también puede ser cualquier cosa
+  };

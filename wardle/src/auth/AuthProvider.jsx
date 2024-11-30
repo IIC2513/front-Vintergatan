@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import { AuthContext } from "./AuthContext";
 
 export default function AuthProvider({ children }) {
@@ -30,3 +31,7 @@ export default function AuthProvider({ children }) {
         </AuthContext.Provider>
     );
 }
+
+AuthProvider.propTypes = {
+    children: PropTypes.node.isRequired, // Valida que children sea renderizable
+};

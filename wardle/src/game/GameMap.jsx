@@ -1,11 +1,15 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import styles from "./GameMap.module.css";
 import axios from 'axios';
+import PropTypes from 'prop-types';
+
 
 export default function GameMap({ roomId, players }) {
   const [playerData, setPlayerData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  console.log('Players:', players);
 
   useEffect(() => {
     const fetchPlayerPoints = async () => {
@@ -62,6 +66,11 @@ export default function GameMap({ roomId, players }) {
     </div>
   );
 }
+
+GameMap.propTypes = {
+  roomId: PropTypes.any.isRequired, 
+  players: PropTypes.any.isRequired, 
+};
 
 /*  return (
     <div className={styles.mapContainer}>
