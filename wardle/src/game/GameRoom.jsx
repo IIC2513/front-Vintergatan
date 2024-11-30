@@ -154,11 +154,38 @@ export default function GameRoom() {
         createPlayerBoard();
     }, []);
 
+    useEffect(() => {
+        const fetchPlayers = async () => {
+            try {
+                const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/room/players/${roomId}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                setPlayers(response.data); // Almacenar el array completo de jugadores
+            } catch (error) {
+                console.error("Error al obtener jugadores de la sala:", error);
+            }
+        };
+
+        fetchPlayers();
+    }, [roomId, token]);
+
     return (
         <div>
             <Navbar />
             <h1>Sala {roomId}</h1>
-            <Board/>
+            <div className={styles.boardsContainer}>
+                {players.map((playerRoom, index) => (
+                    <Board
+                        key={index}
+                        boardData={[]} // Si tienes datos específicos para el tablero, pásalos aquí
+                        isCurrent={false} // Ajusta esta lógica si necesitas indicar el tablero actual
+                        playerName={`Jugador ${playerRoom.Player.character}`} // Ejemplo: "Jugador R"
+                        points={playerRoom.Player.points} // Mostrar puntos si es necesario
+                    />
+                ))}
+            </div>
             <GameMap roomId = {roomId} players={players} />
             <button className={styles.botonabandonar} onClick={handleExitRoom}>Abandonar Juego</button>
         </div>

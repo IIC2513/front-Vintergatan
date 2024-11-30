@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import "./Board.css";
-import { getRandomWord } from "../words/words";
 
 const Board = () => {
   //const { roomId, playerId } = useParams();
@@ -62,15 +61,7 @@ const getRoomId = async (playerId) => {
 };
 
 
-  // Inicializar palabra secreta al montar el componente
-  const hasRun1 = useRef(false);
-  useEffect(() => {
-    if (hasRun1.current) return; // Si ya se ejecutó, salir del efecto
-    hasRun1.current = true;
-    const randomWord = getRandomWord();
-    setSecretWord(randomWord);
-    console.log("Palabra secreta:", randomWord); // Elimina el print para la versión final
-   }, []);
+  // Inicializar palabra secreta al montar el component
 
   useEffect(() => {
   
