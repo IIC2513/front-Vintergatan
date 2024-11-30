@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import "./Board.css";
-import { getRandomWord } from "../words/words";
 
 const Board = () => {
   //const { roomId, playerId } = useParams();
@@ -61,17 +60,6 @@ const getRoomId = async (playerId) => {
     }
 };
 
-
-  // Inicializar palabra secreta al montar el componente
-  const hasRun1 = useRef(false);
-  useEffect(() => {
-    if (hasRun1.current) return; // Si ya se ejecutó, salir del efecto
-    hasRun1.current = true;
-    const randomWord = getRandomWord();
-    setSecretWord(randomWord);
-    console.log("Palabra secreta:", randomWord); // Elimina el print para la versión final
-   }, []);
-
   useEffect(() => {
   
     const startGame = async () => {
@@ -106,9 +94,6 @@ const getRoomId = async (playerId) => {
   
     startGame();
   }, []);
-  
-
-
   
   const getHostIdFromToken = () => {
     const token = localStorage.getItem('token'); 
@@ -167,8 +152,6 @@ const getRoomId = async (playerId) => {
         return null;
     }
   };
-  
-  
 
   useEffect(() => {
     // Mover el foco al primer input de la nueva fila cuando cambie currentAttempt
@@ -178,7 +161,7 @@ const getRoomId = async (playerId) => {
     }
   }, [currentAttempt]); // Ejecutar este efecto cada vez que currentAttempt cambie
 
-const handleGuessSubmit = async () => {
+  const handleGuessSubmit = async () => {
     const token = localStorage.getItem("token");
     const rowIndex = currentAttempt - 1; // Fila actual
     const currentWord = matrix[rowIndex].join(""); // Palabra ingresada
