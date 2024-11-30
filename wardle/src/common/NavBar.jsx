@@ -9,6 +9,65 @@ export default function Navbar() {
     const navigate = useNavigate();
     const isAuthenticated = Boolean(token);
 
+    const getHostIdFromToken = () => {
+        const token = localStorage.getItem('token'); 
+        if (!token) {
+          console.error('No token found');
+          return null;
+        }
+        console.log("se llega a este punto")
+    
+        try {
+            const decoded = parseJWT(token);
+            console.log(decoded);
+            return decoded.sub; // Asegúrate de que `id` existe en tu token
+        } catch (error) {
+            console.error('Error decoding token:', error);
+            return null;
+        }
+    };
+    
+    const getPlayerInfoFromToken = async () => {
+        const user_id = getHostIdFromToken();
+        console.log('User ID:', user_id)
+        if (!user_id) {
+          console.error('Error al encontrar el ID del usuario');
+          return null;
+        }
+    
+        const token = localStorage.getItem('token');  // Obtener el token desde localStorage
+
+        if (!token) {
+            console.error('No se encontró el token');
+            return null;
+        }
+    
+        try {
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/players/${user_id}`, {
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
+            });
+            console.log(response)
+            console.log('Respuesta:', response.data)
+            return response.data;
+        } catch (error) {
+            console.error('Error decoding token:', error);
+            return null;
+        }
+    };
+    
+    function parseJWT(token) {
+        try {
+            const base64Payload = token.split('.')[1]; // Obtiene la segunda parte del token
+            const payload = atob(base64Payload); // Decodifica la parte Base64
+            return JSON.parse(payload); // Parsea el JSON
+        } catch (error) {
+            console.error('Error al decodificar el token:', error);
+            return null;
+        }
+    };
+
     const handleExitRoomConfirmation = (event, path) => {
         const roomId = window.location.pathname.split('/')[2]; // Extraer roomId de la URL
 
@@ -34,11 +93,16 @@ export default function Navbar() {
             return;
         }
 
+        const playerInfo = await getPlayerInfoFromToken();
+        const playerId = playerInfo?.id;
+        console.log("Navbar:", playerId)
+
         try {
             const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/room/delete/${roomId}`, {
                 headers: {
-                    Authorization: `Bearer ${token}`
-                }
+                    Authorization: `Bearer ${token}`,
+                },
+                params: { playerId },
             });
         } catch (error) {
             console.error(error);
