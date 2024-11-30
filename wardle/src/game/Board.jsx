@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import "./Board.css";
-import Navbar from "../common/NavBar";
 import { getRandomWord } from "../words/words";
 
 const Board = () => {
@@ -13,7 +12,7 @@ const Board = () => {
   const [secretWord, setSecretWord] = useState(""); // Palabra secreta
   const [colorsMatrix, setColorsMatrix] = useState(
     Array(6).fill(Array(5).fill(""))
-  ); // Colores de las celdas
+  );
 
   // Manejar cambio en las celdas
 
@@ -36,7 +35,10 @@ const Board = () => {
 
 
   // Inicializar palabra secreta al montar el componente
+  const hasRun1 = useRef(false);
   useEffect(() => {
+    if (hasRun1.current) return; // Si ya se ejecutó, salir del efecto
+    hasRun1.current = true;
     const randomWord = getRandomWord();
     setSecretWord(randomWord);
     console.log("Palabra secreta:", randomWord); // Elimina el print para la versión final
@@ -48,8 +50,7 @@ const Board = () => {
     if (nextInput) {
         nextInput.focus();
     }
-}, [currentAttempt]); // Ejecutar este efecto cada vez que currentAttempt cambie
-
+  }, [currentAttempt]); // Ejecutar este efecto cada vez que currentAttempt cambie
 
   const handleGuessSubmit = () => {
     const rowIndex = currentAttempt - 1; // Fila actual
@@ -75,7 +76,7 @@ const Board = () => {
       
         // Envia la información al backend
     }
-};
+  };
 
 
 
@@ -101,7 +102,7 @@ const Board = () => {
     });
 
     return result; // Regresa la matriz de colores
-};
+  };
 
 
 
@@ -115,7 +116,6 @@ const Board = () => {
 
   return (
     <>
-      <Navbar />
       <div className="container">
         {errorMessage && <div className="popup">{errorMessage}</div>}
         <div className="board">

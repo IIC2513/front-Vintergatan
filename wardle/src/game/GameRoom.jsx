@@ -1,10 +1,11 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import axios from 'axios';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { AuthContext } from '../auth/AuthContext';
 import Navbar from "../common/NavBar";
 import GameMap from "./GameMap";
-
+import Board from "./Board.jsx";
+import styles from "../common/MainPage.module.css";
 
 export default function GameRoom() {
     const navigate = useNavigate();
@@ -12,15 +13,10 @@ export default function GameRoom() {
     const location = useLocation();
     const { token, name } = useContext(AuthContext);
     const [players, setPlayers] = useState([]);
+    const [boards, setBoards] = useState([]); // Tableros de todos los jugadores
+    const [currentPlayer, setCurrentPlayer] = useState(null); // Jugador actual  
 
-    useEffect(() => {
-        setPlayers([
-        { name: "Player1", points: 50 },
-        { name: "Player2", points: 80 },
-        { name: "Player3", points: 30 },
-        { name: "Player4", points: 90 },
-        ]);
-    }, []);
+    const hasRun = useRef(false);
 
     const getHostIdFromToken = () => {
         const token = localStorage.getItem('token'); 
@@ -28,6 +24,7 @@ export default function GameRoom() {
           console.error('No token found');
           return null;
         }
+        console.log("se llega a este punto")
     
         try {
             const decoded = parseJWT(token);
@@ -48,7 +45,7 @@ export default function GameRoom() {
         }
     
         const token = localStorage.getItem('token');  // Obtener el token desde localStorage
-    
+
         if (!token) {
             console.error('No se encontró el token');
             return null;
@@ -60,6 +57,7 @@ export default function GameRoom() {
                 Authorization: `Bearer ${token}`
               }
             });
+            console.log(response)
             console.log('Respuesta:', response.data)
             return response.data;
         } catch (error) {
@@ -87,13 +85,14 @@ export default function GameRoom() {
         }
 
         const playerInfo = await getPlayerInfoFromToken();
-        const player_id = playerInfo?.id;
+        const playerId = playerInfo?.id;
+        console.log(playerInfo)
 
         try {
             const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/room/delete/${roomId}`, {
                 headers: { 
                     Authorization: `Bearer ${token}`, 
-                    player_id
+                    player_id: playerId
                 }
             });
             alert(response.data.message || 'Sala eliminada exitosamente.');
@@ -113,12 +112,55 @@ export default function GameRoom() {
         }
     };
 
+    useEffect(() => {
+        const fetchGameState = async () => {
+            try {
+                const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/game/room/${roomId}`);
+                setBoards(response.data.boards); // Supón que boards contiene todos los tableros
+                setCurrentPlayer(response.data.currentPlayer); // Supón que currentPlayer es el ID del jugador activo
+            } catch (error) {
+                console.error("Error al obtener el estado del juego:", error);
+            }
+        };
+      
+        fetchGameState();
+        const interval = setInterval(fetchGameState, 3000); // Actualiza cada 3 segundos
+      
+        return () => clearInterval(interval); // Limpia el intervalo al desmontar
+    }, [roomId]);
+
+    useEffect(() => {
+        if (hasRun.current) return;
+        hasRun.current = true;
+
+        const createPlayerBoard = async () => {
+            const playerInfo = await getPlayerInfoFromToken();
+            const playerId = playerInfo?.id;
+            console.log(playerInfo)
+            try {
+                const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/game/${roomId}/join`, 
+                    { playerId }, // Enviar el ID del jugador en el cuerpo de la solicitud
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`, // Enviar el token en los encabezados
+                        },
+                    });
+                console.log(response)
+                console.log('Tablero creado:', response.data);
+            } catch (error) {
+                console.error('Error al crear tablero:', error);
+            }
+        };
+        createPlayerBoard();
+    }, []);
+
     return (
         <div>
             <Navbar />
             <h1>Sala {roomId}</h1>
+            <Board/>
             <GameMap roomId = {roomId} players={players} />
-            <button onClick={handleExitRoom}>Exit</button>
+            <button className={styles.botonabandonar} onClick={handleExitRoom}>Abandonar Juego</button>
         </div>
     );
 }

@@ -139,3 +139,7 @@ a:hover {
 .Instructions a:hover {
     opacity: 0.8;
 }
+
+.botonabandonar {
+    text-align: center;
+}
