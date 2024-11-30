@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import "./Board.css";
-import Navbar from "../common/NavBar";
+import { getRandomWord } from "../words/words";
 
 const Board = () => {
   //const { roomId, playerId } = useParams();
@@ -13,7 +13,7 @@ const Board = () => {
   const [secretWord, setSecretWord] = useState(""); // Palabra secreta
   const [colorsMatrix, setColorsMatrix] = useState(
     Array(6).fill(Array(5).fill(""))
-  ); // Colores de las celdas
+  );
 
   // Manejar cambio en las celdas
 
@@ -61,6 +61,16 @@ const getRoomId = async (playerId) => {
     }
 };
 
+
+  // Inicializar palabra secreta al montar el componente
+  const hasRun1 = useRef(false);
+  useEffect(() => {
+    if (hasRun1.current) return; // Si ya se ejecutó, salir del efecto
+    hasRun1.current = true;
+    const randomWord = getRandomWord();
+    setSecretWord(randomWord);
+    console.log("Palabra secreta:", randomWord); // Elimina el print para la versión final
+   }, []);
 
   useEffect(() => {
   
@@ -166,8 +176,7 @@ const getRoomId = async (playerId) => {
     if (nextInput) {
         nextInput.focus();
     }
-}, [currentAttempt]); // Ejecutar este efecto cada vez que currentAttempt cambie
-
+  }, [currentAttempt]); // Ejecutar este efecto cada vez que currentAttempt cambie
 
 const handleGuessSubmit = async () => {
     const token = localStorage.getItem("token");
@@ -215,7 +224,7 @@ const handleGuessSubmit = async () => {
     } else {
         setTimeout(() => alert(`Has perdido. La palabra era: ${secretWord}`), 100);
     }
-};
+  };
 
 
 
@@ -241,7 +250,7 @@ const handleGuessSubmit = async () => {
     });
 
     return result; // Regresa la matriz de colores
-};
+  };
 
 
 
@@ -255,7 +264,6 @@ const handleGuessSubmit = async () => {
 
   return (
     <>
-      <Navbar />
       <div className="container">
         {errorMessage && <div className="popup">{errorMessage}</div>}
         <div className="board">
