@@ -3,10 +3,10 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import "./Board.css";
 import Navbar from "../common/NavBar";
-import { getRandomWord } from "../words/words";
 
 const Board = () => {
-  const { salaId, playerId } = useParams();
+  //const { roomId, playerId } = useParams();
+  const { roomId, playerId } = useState("");
   const [matrix, setMatrix] = useState(Array(6).fill(Array(5).fill(""))); // Tablero
   const [currentAttempt, setCurrentAttempt] = useState(1); // Intento actual
   const [errorMessage, setErrorMessage] = useState(""); // Mensaje de error
@@ -17,7 +17,6 @@ const Board = () => {
 
   // Manejar cambio en las celdas
 
-  // Axel: Cambia a pasar al siguiente celda
   const handleInputChange = (rowIndex, colIndex, value) => {
     if (value.length > 1) return; // Evitar más de una letra
     const newMatrix = [...matrix];
@@ -34,13 +33,132 @@ const Board = () => {
     }
   };
 
+const getRoomId = async (playerId) => {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(
+            `${import.meta.env.VITE_BACKEND_URL}/player/rooms/${playerId}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
+        console.log("Respuesta de getRoomId:", response.data);
 
-  // Inicializar palabra secreta al montar el componente
+        const rooms = response.data; // Ahora es una lista de salas
+        if (rooms.length === 0) {
+            throw new Error("El jugador no tiene salas asociadas.");
+        }
+
+        // Accede al ID de la sala correctamente desde rooms[0].room.id
+        const roomId = rooms[0].room.id;
+        console.log("Room ID recuperado:", roomId);
+        return roomId;
+    } catch (error) {
+        console.error("Error al obtener roomId:", error);
+        throw new Error("No se pudo obtener el roomId");
+    }
+};
+
+
   useEffect(() => {
-    const randomWord = getRandomWord();
-    setSecretWord(randomWord);
-    console.log("Palabra secreta:", randomWord); // Elimina el print para la versión final
+  
+    const startGame = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const playerInfo = await getPlayerInfoFromToken();
+        const playerId = playerInfo.id;
+        const roomId = await getRoomId(playerId);
+        console.log("testses")
+        console.log("playerId es: ", playerId);
+        console.log("roomId es:" , roomId);
+        
+        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/game/start-game`, {
+          playerId: playerId, // ID del jugador
+          roomId: roomId,     // ID de la sala
+        },{
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+    );
+        console.log("playerId es: ", playerId);
+        console.log("roomId es:" , roomId);
+        console.log("Respuesta de start-game:", response.data);
+        setSecretWord(response.data.secretWord); // Almacena la palabra secreta
+        console.log(secretWord);
+      } catch (error) {
+        console.error("Error al iniciar el juego:", error);
+        setErrorMessage("Error al inicializar el juego.");
+      }
+    };
+  
+    startGame();
   }, []);
+  
+
+
+  
+  const getHostIdFromToken = () => {
+    const token = localStorage.getItem('token'); 
+    if (!token) {
+      console.error('No token found');
+      return null;
+    }
+
+    try {
+        const decoded = parseJWT(token);
+        console.log(decoded);
+        return decoded.sub; // Asegúrate de que `id` existe en tu token
+    } catch (error) {
+        console.error('Error decoding token:', error);
+        return null;
+    }
+  };
+
+  const getPlayerInfoFromToken = async () => {
+    const user_id = getHostIdFromToken();
+    console.log('User ID:', user_id)
+    if (!user_id) {
+      console.error('Error al encontrar el ID del usuario');
+      return null;
+    }
+
+    const token = localStorage.getItem('token');  // Obtener el token desde localStorage
+
+    if (!token) {
+        console.error('No se encontró el token');
+        return null;
+    }
+
+    try {
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/players/${user_id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        console.log('Respuesta:', response.data)
+        return response.data;
+    } catch (error) {
+        console.error('Error decoding token:', error);
+        return null;
+    }
+  };
+
+  
+  function parseJWT(token) {
+    try {
+        const base64Payload = token.split('.')[1]; // Obtiene la segunda parte del token
+        const payload = atob(base64Payload); // Decodifica la parte Base64
+        return JSON.parse(payload); // Parsea el JSON
+    } catch (error) {
+        console.error('Error al decodificar el token:', error);
+        return null;
+    }
+  };
+  
+  
 
   useEffect(() => {
     // Mover el foco al primer input de la nueva fila cuando cambie currentAttempt
@@ -51,9 +169,13 @@ const Board = () => {
 }, [currentAttempt]); // Ejecutar este efecto cada vez que currentAttempt cambie
 
 
-  const handleGuessSubmit = () => {
+const handleGuessSubmit = async () => {
+    const token = localStorage.getItem("token");
     const rowIndex = currentAttempt - 1; // Fila actual
     const currentWord = matrix[rowIndex].join(""); // Palabra ingresada
+    const playerInfo = await getPlayerInfoFromToken();
+    const playerId = playerInfo.id;
+
     if (currentWord.length < 5) {
         setErrorMessage("Debes completar la fila antes de enviar.");
         setTimeout(() => setErrorMessage(""), 3000);
@@ -64,16 +186,34 @@ const Board = () => {
     updatedColorsMatrix[rowIndex] = calculateColors(currentWord, secretWord);
     setColorsMatrix(updatedColorsMatrix);
 
-    if (currentWord === secretWord) {
-        setTimeout(() => alert("¡Correcto!"), 100); 
-        // Envia la información al backend
+    // Enviar la palabra adivinada al backend
+    try {
+        const response = await axios.post(
+            `${import.meta.env.VITE_BACKEND_URL}/game/adivinar-palabra`,
+            {
+                player_id: playerId, // ID del jugador
+                attempt: currentAttempt, // Intento actual
+                matrix, // Matriz actualizada
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
+        console.log("Palabra enviada al backend:", currentWord);
+        console.log("Respuesta del servidor:", response.data);
+    } catch (error) {
+        console.error("Error al enviar la palabra al backend:", error);
+        setErrorMessage("Error al guardar el intento en el servidor.");
+        setTimeout(() => setErrorMessage(""), 3000);
+    }
 
+    if (currentWord === secretWord) {
+        setTimeout(() => alert("¡Correcto!"), 100);
     } else if (currentAttempt < 6) {
         setCurrentAttempt(currentAttempt + 1); // Actualiza el intento actual
     } else {
         setTimeout(() => alert(`Has perdido. La palabra era: ${secretWord}`), 100);
-      
-        // Envia la información al backend
     }
 };
 

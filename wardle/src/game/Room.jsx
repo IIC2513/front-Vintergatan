@@ -173,6 +173,7 @@ export default function Room() {
     }
   };
 
+  //saca estos
   const getHostIdFromToken = () => {
     const token = localStorage.getItem('token'); 
     if (!token) {
@@ -189,7 +190,7 @@ export default function Room() {
         return null;
     }
   };
-
+//saca estos
   const getPlayerInfoFromToken = async () => {
     const user_id = getHostIdFromToken();
     console.log('User ID:', user_id)
