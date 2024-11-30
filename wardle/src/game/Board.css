@@ -3,7 +3,7 @@
     flex-direction: column;
     justify-content: center;  
     align-items: center;
-    margin-top: 20px;  
+    margin-top: 80px;  
 }
 
 .board {
@@ -42,20 +42,28 @@ input.cell {
     margin-bottom: 5px;
 }
 
-.gray {
-    background-color: #808080; 
-    color: white;
+.grey {
+    background-color: #a4aec4 !important;
+    color: white !important;
 }
 
 .green {
-    background-color: #4CAF50; 
-    color: white;
+    background-color: #79b851 !important; /* Fuerza el fondo verde */
+    color: white !important; /* Fuerza el texto negro */
 }
 
 .yellow {
-    background-color: #FFEB3B; 
-    color: black;
+    background-color: #eed04d !important; /* Amarillo más oscuro */
+    color: white !important;
 }
+
+.white {
+    background-color: #ffffff !important; /* Fuerza el fondo blanco */
+    color: black !important;
+}
+
+
+
 
 button {
     padding: 10px 20px;

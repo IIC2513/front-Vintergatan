@@ -39,8 +39,11 @@
     background: none;
     color: white;
     border: none;
-    font-size: 1em;
+    font-size: 1.25em;
     cursor: pointer;
+    font-family: inherit;
+    align-items: center; 
+    margin: 0;
   }
   
   .userButton:hover {

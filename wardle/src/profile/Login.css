@@ -61,3 +61,13 @@
     background-color: #e9ffe6; /* light green */
     text-align: center;
   }
+
+  h3 {
+    text-align: center;
+  }
+
+  .link {
+    display: block;
+    text-align: center;
+    margin: 0 auto;
+  }
