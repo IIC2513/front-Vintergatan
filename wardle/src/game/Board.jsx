@@ -1,11 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
 import "./Board.css";
 
 const Board = () => {
-  //const { roomId, playerId } = useParams();
-  const { roomId, playerId } = useState("");
+  //const { roomId, playerId } = useState("");
   const [matrix, setMatrix] = useState(Array(6).fill(Array(5).fill(""))); // Tablero
   const [currentAttempt, setCurrentAttempt] = useState(1); // Intento actual
   const [errorMessage, setErrorMessage] = useState(""); // Mensaje de error
@@ -13,6 +11,64 @@ const Board = () => {
   const [colorsMatrix, setColorsMatrix] = useState(
     Array(6).fill(Array(5).fill(""))
   );
+
+  const getHostIdFromToken = useCallback(() => {
+    const token = localStorage.getItem('token'); 
+    if (!token) {
+      console.error('No token found');
+      return null;
+    }
+
+    try {
+        const decoded = parseJWT(token);
+        console.log(decoded);
+        return decoded.sub; // Asegúrate de que `id` existe en tu token
+    } catch (error) {
+        console.error('Error decoding token:', error);
+        return null;
+    }
+  }, []);
+
+  const getPlayerInfoFromToken = useCallback(async () => {
+    const user_id = getHostIdFromToken();
+    console.log('User ID:', user_id)
+    if (!user_id) {
+      console.error('Error al encontrar el ID del usuario');
+      return null;
+    }
+
+    const token = localStorage.getItem('token');  // Obtener el token desde localStorage
+
+    if (!token) {
+        console.error('No se encontró el token');
+        return null;
+    }
+
+    try {
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/players/${user_id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        console.log('Respuesta:', response.data)
+        return response.data;
+    } catch (error) {
+        console.error('Error decoding token:', error);
+        return null;
+    }
+  }, [getHostIdFromToken]);
+
+  
+  function parseJWT(token) {
+    try {
+        const base64Payload = token.split('.')[1]; // Obtiene la segunda parte del token
+        const payload = atob(base64Payload); // Decodifica la parte Base64
+        return JSON.parse(payload); // Parsea el JSON
+    } catch (error) {
+        console.error('Error al decodificar el token:', error);
+        return null;
+    }
+  };
 
   // Manejar cambio en las celdas
 
@@ -60,7 +116,6 @@ const getRoomId = async (playerId) => {
     }
 };
 
-
   useEffect(() => {
   
     const startGame = async () => {
@@ -94,65 +149,7 @@ const getRoomId = async (playerId) => {
     };
   
     startGame();
-  }, []);
-  
-  const getHostIdFromToken = () => {
-    const token = localStorage.getItem('token'); 
-    if (!token) {
-      console.error('No token found');
-      return null;
-    }
-
-    try {
-        const decoded = parseJWT(token);
-        console.log(decoded);
-        return decoded.sub; // Asegúrate de que `id` existe en tu token
-    } catch (error) {
-        console.error('Error decoding token:', error);
-        return null;
-    }
-  };
-
-  const getPlayerInfoFromToken = async () => {
-    const user_id = getHostIdFromToken();
-    console.log('User ID:', user_id)
-    if (!user_id) {
-      console.error('Error al encontrar el ID del usuario');
-      return null;
-    }
-
-    const token = localStorage.getItem('token');  // Obtener el token desde localStorage
-
-    if (!token) {
-        console.error('No se encontró el token');
-        return null;
-    }
-
-    try {
-        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/players/${user_id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        console.log('Respuesta:', response.data)
-        return response.data;
-    } catch (error) {
-        console.error('Error decoding token:', error);
-        return null;
-    }
-  };
-
-  
-  function parseJWT(token) {
-    try {
-        const base64Payload = token.split('.')[1]; // Obtiene la segunda parte del token
-        const payload = atob(base64Payload); // Decodifica la parte Base64
-        return JSON.parse(payload); // Parsea el JSON
-    } catch (error) {
-        console.error('Error al decodificar el token:', error);
-        return null;
-    }
-  };
+  }, [getPlayerInfoFromToken]);
 
   useEffect(() => {
     // Mover el foco al primer input de la nueva fila cuando cambie currentAttempt
@@ -161,6 +158,35 @@ const getRoomId = async (playerId) => {
         nextInput.focus();
     }
   }, [currentAttempt]); // Ejecutar este efecto cada vez que currentAttempt cambie
+
+  const resetGame = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const playerInfo = await getPlayerInfoFromToken();
+      const playerId = playerInfo.id;
+      const roomId = await getRoomId(playerId);
+
+      // Llama al backend para iniciar un nuevo juego
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/game/start-game`,
+        { playerId, roomId },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      // Reinicia los estados locales
+      setMatrix(Array(6).fill(Array(5).fill("")));
+      setColorsMatrix(Array(6).fill(Array(5).fill("")));
+      setCurrentAttempt(1);
+      setSecretWord(response.data.secretWord); // Nueva palabra secreta
+      setErrorMessage(""); // Limpia cualquier mensaje de error
+    } catch (error) {
+      console.error("Error al reiniciar el juego:", error);
+      setErrorMessage("No se pudo reiniciar el juego. Intenta nuevamente.");
+      setTimeout(() => setErrorMessage(""), 3000);
+    }
+  };
 
   const handleGuessSubmit = async () => {
     const token = localStorage.getItem("token");
@@ -186,6 +212,7 @@ const getRoomId = async (playerId) => {
             {
                 player_id: playerId, // ID del jugador
                 attempt: currentAttempt, // Intento actual
+                secret_word: secretWord,
                 matrix, // Matriz actualizada
             }, {
                 headers: {
@@ -203,15 +230,14 @@ const getRoomId = async (playerId) => {
 
     if (currentWord === secretWord) {
         setTimeout(() => alert("¡Correcto!"), 100);
+        resetGame();
     } else if (currentAttempt < 6) {
         setCurrentAttempt(currentAttempt + 1); // Actualiza el intento actual
     } else {
         setTimeout(() => alert(`Has perdido. La palabra era: ${secretWord}`), 100);
+        resetGame();
     }
   };
-
-
-
 
   const calculateColors = (guess, secret) => {
     const result = Array(5).fill("grey"); // Por defecto, todas las letras son incorrectas

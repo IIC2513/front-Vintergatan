@@ -23,7 +23,7 @@ export default function Rules() {
         <section className={styles.reglas}>
           <h2 className={styles.h2}>Reglas del juego</h2>
           <p>El juego consiste en una competencia entre dos a cuatro jugadores, que deberán adivinar palabras para acumular puntos y avanzar en el mapa. El primero en alcanzar el puntaje necesario será el ganador.</p>
-          <p>En cada turno, el jugador adivina una palabra o usa un "power-up". La partida termina cuando un jugador adivina una cantidad determinada de palabras.</p>
+          <p>En cada turno, el jugador adivina una palabra o usa un &quot;power-up&quot;. La partida termina cuando un jugador adivina una cantidad determinada de palabras.</p>
 
           <h3 className={styles.h3}>Reglas específicas</h3>
           <ol>

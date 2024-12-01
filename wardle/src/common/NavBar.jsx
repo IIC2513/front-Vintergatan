@@ -1,6 +1,6 @@
-import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../auth/AuthContext';
+import { useContext } from 'react';
 import styles from './NavBar.module.css';
 import axios from 'axios';
 
@@ -98,7 +98,7 @@ export default function Navbar() {
         console.log("Navbar:", playerId)
 
         try {
-            const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/room/delete/${roomId}`, {
+            await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/room/delete/${roomId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -117,7 +117,7 @@ export default function Navbar() {
             <div className={styles.navLinks}>
                 <Link to="/rules" className={styles.navLink} onClick={(e) => handleExitRoomConfirmation(e, '/rules')}>Página de instrucciones</Link>
                 <Link to="/about" className={styles.navLink} onClick={(e) => handleExitRoomConfirmation(e, '/about')}>Nosotros</Link>
-                <Link to="/game" className={styles.navLink} onClick={(e) => handleExitRoomConfirmation(e, '/game')}>Ir a partida</Link>
+                <Link to="/room" className={styles.navLink} onClick={(e) => handleExitRoomConfirmation(e, '/room')}>Ir a partida</Link>
 
                 <div className={styles.userMenu}>
                     <button className={styles.userButton}>
