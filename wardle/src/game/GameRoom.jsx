@@ -15,9 +15,12 @@ export default function GameRoom() {
     const [players, setPlayers] = useState([]);
     const [winner, setWinner] = useState(null);
     const [boards, setBoards] = useState([]); // Tableros de todos los jugadores
-    const [currentPlayer, setCurrentPlayer] = useState(null); // Jugador actual 
+    const [currentPlayer, setCurrentPlayer] = useState(null); // Jugador actual
+    const [errorMessage, setErrorMessage] = useState("");
+ 
 
     const hasRun = useRef(false);
+    console.log(hasRun, boards, currentPlayer, name, errorMessage)
 
     const getHostIdFromToken = useCallback(() => {
         const token = localStorage.getItem('token'); 

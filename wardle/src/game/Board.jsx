@@ -149,6 +149,7 @@ const getRoomId = async (playerId) => {
     };
   
     startGame();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getPlayerInfoFromToken]);
 
   useEffect(() => {
