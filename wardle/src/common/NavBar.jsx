@@ -117,7 +117,7 @@ export default function Navbar() {
             <div className={styles.navLinks}>
                 <Link to="/rules" className={styles.navLink} onClick={(e) => handleExitRoomConfirmation(e, '/rules')}>Página de instrucciones</Link>
                 <Link to="/about" className={styles.navLink} onClick={(e) => handleExitRoomConfirmation(e, '/about')}>Nosotros</Link>
-                <Link to="/game" className={styles.navLink} onClick={(e) => handleExitRoomConfirmation(e, '/game')}>Ir a partida</Link>
+                <Link to="/room" className={styles.navLink} onClick={(e) => handleExitRoomConfirmation(e, '/room')}>Ir a partida</Link>
 
                 <div className={styles.userMenu}>
                     <button className={styles.userButton}>
