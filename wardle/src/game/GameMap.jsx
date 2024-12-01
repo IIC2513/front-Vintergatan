@@ -56,7 +56,7 @@ export default function GameMap({ roomId, players }) {
               {/* La barra de progreso toma el tamaño en relación al puntaje */}
               <div
                 className={styles.progressBar}
-                style={{ width: `${(player.points / 100) * 100}%` }} // Ajusta el ancho de la barra según el puntaje
+                style={{ width: `${(player.points / 200) * 100}%` }} // Ajusta el ancho de la barra según el puntaje
               ></div>
             </div>
             <div className={styles.points}>{player.points} puntos</div>
@@ -71,24 +71,3 @@ GameMap.propTypes = {
   roomId: PropTypes.any.isRequired, 
   players: PropTypes.any.isRequired, 
 };
-
-/*  return (
-    <div className={styles.mapContainer}>
-      <h2>Progreso de los jugadores</h2>
-      <div className={styles.map}>
-        {players.map((player, index) => (
-          <div key={index} className={styles.player}>
-            <div className={styles.name}>{player.name}</div>
-            <div className={styles.progress}>
-              <div
-                className={styles.progressBar}
-                style={{ width: `${player.points}%` }} // Ajusta según los puntos
-              ></div>
-            </div>
-            <div className={styles.points}>{player.points} puntos</div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-} */

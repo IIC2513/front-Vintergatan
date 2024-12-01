@@ -13,6 +13,7 @@ export default function GameRoom() {
     const location = useLocation();
     const { token, name } = useContext(AuthContext);
     const [players, setPlayers] = useState([]);
+    const [winner, setWinner] = useState(null);
     const [boards, setBoards] = useState([]); // Tableros de todos los jugadores
     const [currentPlayer, setCurrentPlayer] = useState(null); // Jugador actual 
 
@@ -130,38 +131,78 @@ export default function GameRoom() {
         return () => clearInterval(interval); // Limpia el intervalo al desmontar
     },[roomId]);
 
-    useEffect(() => {
-        if (hasRun.current) return;
-        hasRun.current = true;
+    const fetchPlayers = useCallback(async () => {
+        try {
+          const token = localStorage.getItem("token");
+          const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/room/detail-players/${roomId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
 
-        const createPlayerBoard = async () => {
-            const playerInfo = await getPlayerInfoFromToken();
-            const playerId = playerInfo?.id;
-            console.log(playerInfo)
-            try {
-                const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/game/${roomId}/join`, 
-                    { playerId }, // Enviar el ID del jugador en el cuerpo de la solicitud
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`, // Enviar el token en los encabezados
-                        },
-                    });
-                console.log(response)
-                console.log('Tablero creado:', response.data);
-            } catch (error) {
-                console.error('Error al crear tablero:', error);
-            }
-        };
-        createPlayerBoard();
-    }, [getPlayerInfoFromToken, roomId, token]);
+          setPlayers(response.data);
+          console.log(response.data);
+
+        } catch (error) {
+          console.error("Error al obtener los jugadores:", error);
+          setErrorMessage("Error al cargar los jugadores.");
+          setTimeout(() => setErrorMessage(""), 3000);
+        }
+    }, [roomId]);
+
+    const endGame = async (players) => {
+        const potentialWinner = players.find((player) => player.points >= 200);
+    
+        // Declara 'nombre' fuera del try-catch para que esté disponible en todo el ámbito de la función
+        let nombre = '';
+    
+        try {
+            // Esperar a obtener el nombre del ganador
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/user/name/${potentialWinner.user_ID}`);
+            nombre = response.data.name;  // Asignar el nombre a la variable
+            console.log('Nombre del usuario:', nombre);
+    
+            // Agregar el nombre al objeto potentialWinner
+            potentialWinner.name = nombre;
+        } catch (error) {
+            console.error('Error al obtener el nombre del usuario:', error);
+        }
+    
+        console.log("endGame:", potentialWinner);
+    
+        if (potentialWinner) {
+            setWinner(potentialWinner); // Establece al ganador con el nombre agregado
+            console.log("¡Ganador!", potentialWinner.name, "con", potentialWinner.points, "puntos!");
+        }
+    };
+    
+    useEffect(() => {
+        endGame(players); // Llama a la función cada vez que los jugadores se actualicen
+    }, [players]);
+
+    useEffect(() => {
+        const interval = setInterval(fetchPlayers, 5000); // Actualiza cada 5 segundos
+        return () => clearInterval(interval); // Limpia el intervalo al desmontar el componente
+    }, [fetchPlayers]);
 
     return (
         <div>
-            <Navbar />
-            <h1>Sala {roomId}</h1>
-            <Board/>
-            <GameMap roomId = {roomId} players={players} />
-            <button className={styles.botonabandonar} onClick={handleExitRoom}>Abandonar Juego</button>
+          <Navbar />
+          <h1>Sala {roomId}</h1>
+          {winner ? (
+            <div className="winner-announcement">
+              <h2>¡El jugador {winner.name} ha ganado con {winner.points} puntos!</h2>
+              <button className={styles.botonabandonar} onClick={handleExitRoom}>
+                Volver al Lobby
+              </button>
+            </div>
+          ) : (
+            <>
+              <Board />
+              <GameMap roomId={roomId} players={players} />
+              <button className={styles.botonabandonar} onClick={handleExitRoom}>
+                Abandonar Juego
+              </button>
+            </>
+          )}
         </div>
-    );
+    );     
 }

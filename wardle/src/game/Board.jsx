@@ -12,88 +12,6 @@ const Board = () => {
     Array(6).fill(Array(5).fill(""))
   );
 
-  // Manejar cambio en las celdas
-
-  const handleInputChange = (rowIndex, colIndex, value) => {
-    if (value.length > 1) return; // Evitar más de una letra
-    const newMatrix = [...matrix];
-    newMatrix[rowIndex] = [...newMatrix[rowIndex]];
-    newMatrix[rowIndex][colIndex] = value.toUpperCase();
-    setMatrix(newMatrix);
-
-    // Mover al siguiente input automáticamente
-    if (value && colIndex < 4) { // Si no estamos en la última columna
-        const nextInput = document.getElementById(`input-${rowIndex}-${colIndex + 1}`);
-        if (nextInput) {
-            nextInput.focus();
-        }
-    }
-  };
-
-const getRoomId = async (playerId) => {
-    try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get(
-            `${import.meta.env.VITE_BACKEND_URL}/player/rooms/${playerId}`,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            }
-        );
-        console.log("Respuesta de getRoomId:", response.data);
-
-        const rooms = response.data; // Ahora es una lista de salas
-        if (rooms.length === 0) {
-            throw new Error("El jugador no tiene salas asociadas.");
-        }
-
-        // Accede al ID de la sala correctamente desde rooms[0].room.id
-        const roomId = rooms[0].room.id;
-        console.log("Room ID recuperado:", roomId);
-        return roomId;
-    } catch (error) {
-        console.error("Error al obtener roomId:", error);
-        throw new Error("No se pudo obtener el roomId");
-    }
-};
-
-
-  useEffect(() => {
-  
-    const startGame = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const playerInfo = await getPlayerInfoFromToken();
-        const playerId = playerInfo.id;
-        const roomId = await getRoomId(playerId);
-        console.log("testses")
-        console.log("playerId es: ", playerId);
-        console.log("roomId es:" , roomId);
-        
-        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/game/start-game`, {
-          playerId: playerId, // ID del jugador
-          roomId: roomId,     // ID de la sala
-        },{
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        }
-    );
-        console.log("playerId es: ", playerId);
-        console.log("roomId es:" , roomId);
-        console.log("Respuesta de start-game:", response.data);
-        setSecretWord(response.data.secretWord); // Almacena la palabra secreta
-        console.log(secretWord);
-      } catch (error) {
-        console.error("Error al iniciar el juego:", error);
-        setErrorMessage("Error al inicializar el juego.");
-      }
-    };
-  
-    startGame();
-  }, [getPlayerInfoFromToken, secretWord]);
-  
   const getHostIdFromToken = useCallback(() => {
     const token = localStorage.getItem('token'); 
     if (!token) {
@@ -152,6 +70,87 @@ const getRoomId = async (playerId) => {
     }
   };
 
+  // Manejar cambio en las celdas
+
+  const handleInputChange = (rowIndex, colIndex, value) => {
+    if (value.length > 1) return; // Evitar más de una letra
+    const newMatrix = [...matrix];
+    newMatrix[rowIndex] = [...newMatrix[rowIndex]];
+    newMatrix[rowIndex][colIndex] = value.toUpperCase();
+    setMatrix(newMatrix);
+
+    // Mover al siguiente input automáticamente
+    if (value && colIndex < 4) { // Si no estamos en la última columna
+        const nextInput = document.getElementById(`input-${rowIndex}-${colIndex + 1}`);
+        if (nextInput) {
+            nextInput.focus();
+        }
+    }
+  };
+
+const getRoomId = async (playerId) => {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(
+            `${import.meta.env.VITE_BACKEND_URL}/player/rooms/${playerId}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
+        console.log("Respuesta de getRoomId:", response.data);
+
+        const rooms = response.data; // Ahora es una lista de salas
+        if (rooms.length === 0) {
+            throw new Error("El jugador no tiene salas asociadas.");
+        }
+
+        // Accede al ID de la sala correctamente desde rooms[0].room.id
+        const roomId = rooms[0].room.id;
+        console.log("Room ID recuperado:", roomId);
+        return roomId;
+    } catch (error) {
+        console.error("Error al obtener roomId:", error);
+        throw new Error("No se pudo obtener el roomId");
+    }
+};
+
+  useEffect(() => {
+  
+    const startGame = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const playerInfo = await getPlayerInfoFromToken();
+        const playerId = playerInfo.id;
+        const roomId = await getRoomId(playerId);
+        console.log("testses")
+        console.log("playerId es: ", playerId);
+        console.log("roomId es:" , roomId);
+        
+        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/game/start-game`, {
+          playerId: playerId, // ID del jugador
+          roomId: roomId,     // ID de la sala
+        },{
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }
+    );
+        console.log("playerId es: ", playerId);
+        console.log("roomId es:" , roomId);
+        console.log("Respuesta de start-game:", response.data);
+        setSecretWord(response.data.secretWord); // Almacena la palabra secreta
+        console.log(secretWord);
+      } catch (error) {
+        console.error("Error al iniciar el juego:", error);
+        setErrorMessage("Error al inicializar el juego.");
+      }
+    };
+  
+    startGame();
+  }, [getPlayerInfoFromToken]);
+
   useEffect(() => {
     // Mover el foco al primer input de la nueva fila cuando cambie currentAttempt
     const nextInput = document.getElementById(`input-${currentAttempt - 1}-0`);
@@ -159,6 +158,35 @@ const getRoomId = async (playerId) => {
         nextInput.focus();
     }
   }, [currentAttempt]); // Ejecutar este efecto cada vez que currentAttempt cambie
+
+  const resetGame = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const playerInfo = await getPlayerInfoFromToken();
+      const playerId = playerInfo.id;
+      const roomId = await getRoomId(playerId);
+
+      // Llama al backend para iniciar un nuevo juego
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/game/start-game`,
+        { playerId, roomId },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      // Reinicia los estados locales
+      setMatrix(Array(6).fill(Array(5).fill("")));
+      setColorsMatrix(Array(6).fill(Array(5).fill("")));
+      setCurrentAttempt(1);
+      setSecretWord(response.data.secretWord); // Nueva palabra secreta
+      setErrorMessage(""); // Limpia cualquier mensaje de error
+    } catch (error) {
+      console.error("Error al reiniciar el juego:", error);
+      setErrorMessage("No se pudo reiniciar el juego. Intenta nuevamente.");
+      setTimeout(() => setErrorMessage(""), 3000);
+    }
+  };
 
   const handleGuessSubmit = async () => {
     const token = localStorage.getItem("token");
@@ -184,6 +212,7 @@ const getRoomId = async (playerId) => {
             {
                 player_id: playerId, // ID del jugador
                 attempt: currentAttempt, // Intento actual
+                secret_word: secretWord,
                 matrix, // Matriz actualizada
             }, {
                 headers: {
@@ -201,15 +230,14 @@ const getRoomId = async (playerId) => {
 
     if (currentWord === secretWord) {
         setTimeout(() => alert("¡Correcto!"), 100);
+        resetGame();
     } else if (currentAttempt < 6) {
         setCurrentAttempt(currentAttempt + 1); // Actualiza el intento actual
     } else {
         setTimeout(() => alert(`Has perdido. La palabra era: ${secretWord}`), 100);
+        resetGame();
     }
   };
-
-
-
 
   const calculateColors = (guess, secret) => {
     const result = Array(5).fill("grey"); // Por defecto, todas las letras son incorrectas

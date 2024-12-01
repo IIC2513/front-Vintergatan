@@ -14,6 +14,64 @@ export default function Room() {
   const { logout } = useContext(AuthContext);
   const hasRun = useRef(false);
 
+  const getHostIdFromToken = useCallback(() => {
+    const token = localStorage.getItem('token'); 
+    if (!token) {
+      console.error('No token found');
+      return null;
+    }
+
+    try {
+        const decoded = parseJWT(token);
+        console.log(decoded);
+        return decoded.sub; // Asegúrate de que `id` existe en tu token
+    } catch (error) {
+        console.error('Error decoding token:', error);
+        return null;
+    }
+  },[]);
+
+//saca estos
+  const getPlayerInfoFromToken = useCallback(async () => {
+    const user_id = getHostIdFromToken();
+    console.log('User ID:', user_id)
+    if (!user_id) {
+      console.error('Error al encontrar el ID del usuario');
+      return null;
+    }
+
+    const token = localStorage.getItem('token');  // Obtener el token desde localStorage
+
+    if (!token) {
+        console.error('No se encontró el token');
+        return null;
+    }
+
+    try {
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/players/${user_id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        console.log('Respuesta:', response.data)
+        return response.data;
+    } catch (error) {
+        console.error('Error decoding token:', error);
+        return null;
+    }
+  }, [getHostIdFromToken]);
+
+  function parseJWT(token) {
+    try {
+        const base64Payload = token.split('.')[1]; // Obtiene la segunda parte del token
+        const payload = atob(base64Payload); // Decodifica la parte Base64
+        return JSON.parse(payload); // Parsea el JSON
+    } catch (error) {
+        console.error('Error al decodificar el token:', error);
+        return null;
+    }
+  };
+
   useEffect(() => {
     if (hasRun.current) return; // Si ya se ejecutó, salir del efecto
 
@@ -168,65 +226,6 @@ export default function Room() {
     } catch (error) {
       console.error(error);
       alert('Error al unirse a la sala.');
-    }
-  };
-
-  //saca estos
-  const getHostIdFromToken = useCallback(() => {
-    const token = localStorage.getItem('token'); 
-    if (!token) {
-      console.error('No token found');
-      return null;
-    }
-
-    try {
-        const decoded = parseJWT(token);
-        console.log(decoded);
-        return decoded.sub; // Asegúrate de que `id` existe en tu token
-    } catch (error) {
-        console.error('Error decoding token:', error);
-        return null;
-    }
-  },[]);
-
-//saca estos
-  const getPlayerInfoFromToken = useCallback(async () => {
-    const user_id = getHostIdFromToken();
-    console.log('User ID:', user_id)
-    if (!user_id) {
-      console.error('Error al encontrar el ID del usuario');
-      return null;
-    }
-
-    const token = localStorage.getItem('token');  // Obtener el token desde localStorage
-
-    if (!token) {
-        console.error('No se encontró el token');
-        return null;
-    }
-
-    try {
-        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/players/${user_id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        console.log('Respuesta:', response.data)
-        return response.data;
-    } catch (error) {
-        console.error('Error decoding token:', error);
-        return null;
-    }
-  }, [getHostIdFromToken]);
-
-  function parseJWT(token) {
-    try {
-        const base64Payload = token.split('.')[1]; // Obtiene la segunda parte del token
-        const payload = atob(base64Payload); // Decodifica la parte Base64
-        return JSON.parse(payload); // Parsea el JSON
-    } catch (error) {
-        console.error('Error al decodificar el token:', error);
-        return null;
     }
   };
   
