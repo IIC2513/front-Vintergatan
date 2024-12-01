@@ -15,6 +15,7 @@ body {
     align-items: center;
     justify-content: center;
     min-height: 100vh;
+    text-align: center; /* Centra el texto dentro del contenedor */
 }
 
 h1 {
@@ -24,7 +25,6 @@ h1 {
     display: flex;
     align-items: center;
     justify-content: center;
-
 }
 
 .Userinput {
@@ -141,5 +141,17 @@ a:hover {
 }
 
 .botonabandonar {
+    margin-top: 20px; /* Separación de otros elementos si es necesario */
+    padding: 10px 20px; /* Ajusta el tamaño del botón */
+    background-color: #4caf50; /* Un color bonito para el botón */
+    color: white; /* Color de texto blanco */
+    border-radius: 10px; /* Bordes redondeados */
+    border: none; /* Sin borde */
+    cursor: pointer; /* Puntero para indicar que es un botón */
     text-align: center;
+    transition: background-color 0.3s ease; /* Transición suave para el color */
+}
+
+.botonabandonar:hover {
+    background-color: #45a049; /* Color de fondo más oscuro al hacer hover */
 }
