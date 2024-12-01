@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
 import "./Board.css";
 
-const Board = () => {
+const Board = ({ boardData, isCurrent, playerName, points }) => {
   //const { roomId, playerId } = useParams();
   const { roomId, playerId } = useState("");
   const [matrix, setMatrix] = useState(Array(6).fill(Array(5).fill(""))); // Tablero
@@ -52,7 +51,6 @@ const getRoomId = async (playerId) => {
 
         // Accede al ID de la sala correctamente desde rooms[0].room.id
         const roomId = rooms[0].room.id;
-        console.log("Room ID recuperado:", roomId);
         return roomId;
     } catch (error) {
         console.error("Error al obtener roomId:", error);
@@ -69,9 +67,7 @@ const getRoomId = async (playerId) => {
         const playerInfo = await getPlayerInfoFromToken();
         const playerId = playerInfo.id;
         const roomId = await getRoomId(playerId);
-        console.log("testses")
         console.log("playerId es: ", playerId);
-        console.log("roomId es:" , roomId);
         
         const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/game/start-game`, {
           playerId: playerId, // ID del jugador
@@ -85,8 +81,8 @@ const getRoomId = async (playerId) => {
         console.log("playerId es: ", playerId);
         console.log("roomId es:" , roomId);
         console.log("Respuesta de start-game:", response.data);
-        setSecretWord(response.data.secretWord); // Almacena la palabra secreta
-        console.log(secretWord);
+        //setSecretWord(response.data.secretWord); // Almacena la palabra secreta
+        //console.log(secretWord);
       } catch (error) {
         console.error("Error al iniciar el juego:", error);
         setErrorMessage("Error al inicializar el juego.");
@@ -105,7 +101,7 @@ const getRoomId = async (playerId) => {
 
     try {
         const decoded = parseJWT(token);
-        console.log(decoded);
+        console.log('decoding token in board');
         return decoded.sub; // Asegúrate de que `id` existe en tu token
     } catch (error) {
         console.error('Error decoding token:', error);
@@ -115,7 +111,7 @@ const getRoomId = async (playerId) => {
 
   const getPlayerInfoFromToken = async () => {
     const user_id = getHostIdFromToken();
-    console.log('User ID:', user_id)
+    console.log('this user ID is', user_id)
     if (!user_id) {
       console.error('Error al encontrar el ID del usuario');
       return null;
@@ -134,7 +130,7 @@ const getRoomId = async (playerId) => {
             Authorization: `Bearer ${token}`
           }
         });
-        console.log('Respuesta:', response.data)
+        console.log('Info del user:', response.data)
         return response.data;
     } catch (error) {
         console.error('Error decoding token:', error);
@@ -250,6 +246,7 @@ const getRoomId = async (playerId) => {
     <>
       <div className="container">
         {errorMessage && <div className="popup">{errorMessage}</div>}
+        <h2>{playerName} - Puntos: {points}</h2>
         <div className="board">
           {matrix.map((row, rowIndex) => (
             <div key={rowIndex} className="row">
@@ -286,7 +283,7 @@ const getRoomId = async (playerId) => {
             </div>
           ))}
         </div>
-        <button onClick={() => handleGuessSubmit()}>Enviar intento</button>
+        {isCurrent &&<button onClick={() => handleGuessSubmit()}>Enviar intento</button>}
         </div>
     </>
   );

@@ -12,7 +12,9 @@ export default function GameRoom() {
     const { roomId } = useParams();
     const location = useLocation();
     const { token, name } = useContext(AuthContext);
+    const [userInfo, setUserInfo] = useState([]);
     const [players, setPlayers] = useState([]);
+    const [room, setRoom] = useState([]);
     const [boards, setBoards] = useState([]); // Tableros de todos los jugadores
     const [currentPlayer, setCurrentPlayer] = useState(null); // Jugador actual  
 
@@ -24,11 +26,11 @@ export default function GameRoom() {
           console.error('No token found');
           return null;
         }
-        console.log("se llega a este punto")
     
         try {
             const decoded = parseJWT(token);
-            console.log(decoded);
+            console.log('decoding token in GameRoom');
+            setUserInfo(decoded.id);
             return decoded.sub; // Asegúrate de que `id` existe en tu token
         } catch (error) {
             console.error('Error decoding token:', error);
@@ -38,7 +40,7 @@ export default function GameRoom() {
     
     const getPlayerInfoFromToken = async () => {
         const user_id = getHostIdFromToken();
-        console.log('User ID:', user_id)
+        console.log('this user ID is', user_id)
         if (!user_id) {
           console.error('Error al encontrar el ID del usuario');
           return null;
@@ -57,8 +59,7 @@ export default function GameRoom() {
                 Authorization: `Bearer ${token}`
               }
             });
-            console.log(response)
-            console.log('Respuesta:', response.data)
+            console.log('Info del player:', response.data)
             return response.data;
         } catch (error) {
             console.error('Error decoding token:', error);
@@ -113,6 +114,41 @@ export default function GameRoom() {
         }
     };
 
+    const fetchGameState = async () => {
+        try {
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/room/players/${roomId}`);
+            // Suponiendo que tienes una respuesta como la que muestras:
+            const playersInRoom = response.data;  // Esta es la respuesta del backend
+
+            // Para acceder a los jugadores de cada PlayerRoom
+            const players = playersInRoom.map(playerRoom => playerRoom.Player);
+
+            // Ahora 'players' es un arreglo con los jugadores directamente.
+            console.log("jugadores en la sala", players);
+    
+            setPlayers(players); // Actualiza los jugadores
+            //setBoards(response.data.boards);  // Actualiza los tableros
+            //setCurrentPlayer(response.data.currentPlayer); // Actualiza el jugador actual
+        } catch (error) {
+            console.error("Error al obtener el estado del juego:", error);
+        }
+    };
+
+    useEffect(() => {
+        // Obtener la sala usando roomId
+        const fetchRoomData = async () => {
+            try {
+                const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/room/${roomId}`); // Asegúrate de que la URL sea correcta
+                const room = response.data;
+                setRoom(room); // Actualiza el estado con la información de la sala
+            } catch (error) {
+                console.error("Error al obtener la sala:", error);
+            }
+        };
+    
+        fetchRoomData();
+    }, [roomId]);
+
     useEffect(() => {
         const fetchGameState = async () => {
             try {
@@ -128,7 +164,7 @@ export default function GameRoom() {
         const interval = setInterval(fetchGameState, 3000); // Actualiza cada 3 segundos
       
         return () => clearInterval(interval); // Limpia el intervalo al desmontar
-    }, [roomId]);
+    },[roomId]);
 
     useEffect(() => {
         if (hasRun.current) return;
@@ -137,7 +173,7 @@ export default function GameRoom() {
         const createPlayerBoard = async () => {
             const playerInfo = await getPlayerInfoFromToken();
             const playerId = playerInfo?.id;
-            console.log(playerInfo)
+            console.log('Antes de crear playerBoard tenemos esta info del player', playerInfo)
             try {
                 const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/game/${roomId}/join`, 
                     { playerId }, // Enviar el ID del jugador en el cuerpo de la solicitud
@@ -146,8 +182,19 @@ export default function GameRoom() {
                             Authorization: `Bearer ${token}`, // Enviar el token en los encabezados
                         },
                     });
-                console.log(response)
-                console.log('Tablero creado:', response.data);
+                console.log('Jugador y tablero creado:', response.data.player);
+                    
+                // Actualiza el estado de players con el tablero del jugador
+                setPlayers((prevPlayers) => {
+                    const updatedPlayers = prevPlayers.map((player) =>
+                        player.id === playerId ? { ...player, Board: response.data.player.Board } : player
+                    );
+                    console.log('Jugadores actualizados:', updatedPlayers);
+                    return updatedPlayers;
+                });
+            
+                // Actualiza los datos de la sala después de crear el tablero
+
             } catch (error) {
                 console.error('Error al crear tablero:', error);
             }
@@ -155,11 +202,29 @@ export default function GameRoom() {
         createPlayerBoard();
     }, []);
 
+    useEffect(() => {
+        // Este effect se ejecuta cada vez que 'players' cambia
+        console.log('Como estan players:', players);
+    }, [players]);
+
     return (
         <div>
             <Navbar />
             <h1>Sala {roomId}</h1>
-            <Board/>
+            <div className={styles.boardsContainer}>
+                {console.log("Players en GameRoom:", players)}
+                {players.map((player, index) => {
+                    {console.log("PlayRoom:", player.Board)}
+                    const isCurrentPlayer = player.id === room.currentTurn; 
+                    <Board
+                        key={index}
+                        boardData={player.Board ? player.Board : {}} // Pasa los datos del tablero del jugador
+                        isCurrent={isCurrentPlayer} // Verifica si es el turno del jugador
+                        playerName={`Jugador ${player.character}`} 
+                        points={player.points}
+                    />
+                })}
+            </div>
             <GameMap roomId = {roomId} players={players} />
             <button className={styles.botonabandonar} onClick={handleExitRoom}>Abandonar Juego</button>
         </div>

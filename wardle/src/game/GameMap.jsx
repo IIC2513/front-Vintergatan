@@ -21,7 +21,7 @@ export default function GameMap({ roomId, players }) {
           },
         });
 
-        console.log(response)
+        console.log('Los puntos de la sala',response)
     
         if (response.status < 200 || response.status >= 300) {
           throw new Error(`Error al obtener los datos: ${response.status}`);
